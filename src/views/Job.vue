@@ -367,7 +367,6 @@ onMounted(() => {
   <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit">
     <!-- Core Job Information Section -->
     <section id="core-job-info" class="mb-8">
-
       <div class="bg-white rounded-xl border border-gray-200 p-8">
         <div class="flex items-center justify-between mb-6">
           <div>
@@ -522,6 +521,42 @@ onMounted(() => {
           </div>
         </div>
 
+        <div class="space-y-6 mb-5">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Estimates</label>
+          <div class="grid grid-cols-6" id="salary-estimates" v-if="salaryCurrentLocation.length > 0">
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 " style="border-top-left-radius: 10px;">Level</div>
+              <div class="text-center m-1 p-1 bg-gray-300">Current Location</div>
+              <div class="text-center m-1 p-1 bg-gray-300" style="border-bottom-left-radius: 10px;">National Average</div>
+            </div>
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 ">Novice</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[0].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[0].upper) }}</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[0]) }}</div>
+            </div>
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 ">Intermediate</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[1].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[1].upper) }}</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[1]) }}</div>
+            </div>
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 ">Proficient</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[2].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[2].upper) }}</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[2]) }}</div>
+            </div>
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 ">Advanced</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[3].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[3].upper) }}</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[3]) }}</div>
+            </div>
+            <div>
+              <div class="text-center m-1 p-1 bg-purple-300 " style="border-top-right-radius: 10px;">Expert</div>
+              <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[4].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[4].upper) }}</div>
+              <div class="text-center m-1 p-1 bg-gray-300"  style="border-bottom-right-radius: 10px;">{{ utils.formatCurrency(salaryNational[4]) }}</div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column - Salary Information -->
           <div class="space-y-6">
@@ -533,7 +568,7 @@ onMounted(() => {
                   <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer " :class="job.payType === payType ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
                     <RadioButton v-model="job.payType" :value="payType" @change="() => updateField('payType', job.payType)"/>
                     <i class="pl-1 text-gray-600 mb-1" :class="getIconForPayType(payType) + ' ' + (job.payType === payType ? 'text-blue-600' : 'text-gray-600')"></i>
-                    <div class="pl-1 text-sm font-medium text-normal text-nowrap" :class="job.payType === payType ? 'text-blue-600' : 'text-gray-600'">{{payType}}</div>
+                    <div class="pl-1 text-sm font-medium text-normal text-nowrap" :class="job.payType === payType ? 'text-blue-600' : 'text-gray-600'">{{payType.replace("Salary", "")}}</div>
                   </label>
                 </template>
               </div>
@@ -649,39 +684,6 @@ onMounted(() => {
                 <InputNumber v-model="job.signingBonus" inputId="currency-us" mode="currency" currency="USD" locale="en-US" placeholder="$5,000" @change="() => updateField('signingBonus', job.signingBonus)" />
               </div>
             </div>
-          </div>
-        </div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Estimates</label>
-        <div class="grid grid-cols-6" id="salary-estimates" v-if="salaryCurrentLocation.length > 0">
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white" style="border-top-left-radius: 10px;">Level</div>
-            <div class="text-center m-1 p-1 bg-gray-300">Current Location</div>
-            <div class="text-center m-1 p-1 bg-gray-300" style="border-bottom-left-radius: 10px;">National Average</div>
-          </div>
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white">Novice</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[0].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[0].upper) }}</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[0]) }}</div>
-          </div>
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white">Intermediate</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[1].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[1].upper) }}</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[1]) }}</div>
-          </div>
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white">Proficient</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[2].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[2].upper) }}</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[2]) }}</div>
-          </div>
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white">Advanced</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[3].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[3].upper) }}</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryNational[3]) }}</div>
-          </div>
-          <div>
-            <div class="text-center m-1 p-1 bg-purple-500 text-white" style="border-top-right-radius: 10px;">Expert</div>
-            <div class="text-center m-1 p-1 bg-gray-300">{{ utils.formatCurrency(salaryCurrentLocation[4].lower) + "-" + utils.formatCurrency(salaryCurrentLocation[4].upper) }}</div>
-            <div class="text-center m-1 p-1 bg-gray-300"  style="border-bottom-right-radius: 10px;">{{ utils.formatCurrency(salaryNational[4]) }}</div>
           </div>
         </div>
       </div>

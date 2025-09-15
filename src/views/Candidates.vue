@@ -8,13 +8,17 @@ import InputIcon from "primevue/inputicon"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Textarea from "primevue/textarea"
-import utils from "@/utils.ts";
-import {CandidateStatus, CompetencyLevel} from "@/types.ts";
-import Select from "primevue/select";
-import Drawer from "primevue/drawer";
-import Button from "primevue/button";
-import PhoneNumberInput from "@/components/PhoneNumberInput.vue";
+import utils from "@/utils.ts"
+import {CandidateStatus, CompetencyLevel} from "@/types.ts"
+import Select from "primevue/select"
+import Drawer from "primevue/drawer"
+import Button from "primevue/button"
+import PhoneNumberInput from "@/components/PhoneNumberInput.vue"
+import Chip from "primevue/chip";
 
+const openResultDialog = ref(false)
+const loadingDetailResults = ref(false)
+const assessmentResult: any = ref({})
 const subject = ref("")
 const message = ref("")
 const candidates = ref([])
@@ -36,7 +40,9 @@ const loadCandidates = (event?: any) => {
   let sortField = "email"
   let sortOrder = "asc"
   if (event) {
-    candidatePagingInfo.value.page = event.page + 1
+    if (event.page) {
+      candidatePagingInfo.value.page = event.page + 1
+    }
     if (event.sortField) {
       sortField = event.sortField
       sortOrder = event.sortOrder === -1 ? "desc" : "asc"
@@ -143,6 +149,18 @@ const sendCandidateEmail = () => {
     }
   });
 }
+const viewResults = (arid: any) => {
+  loadingDetailResults.value = true
+  hrbCore.getAssessmentResult(arid).then((response: any) => {
+    loadingDetailResults.value = false
+    if (response.success) {
+      assessmentResult.value = response.payload
+      openResultDialog.value = true
+    } else {
+      hrbCore.putMessage(response.message, true)
+    }
+  })
+}
 
 </script>
 <template>
@@ -229,6 +247,7 @@ const sendCandidateEmail = () => {
           <div class="flex flex-row">
             <a v-if="data.resume" @click="viewResume(data.resume)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Resume"><i class="pi pi-file-check"></i></a>
             <a @click="viewCandidate(data)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-user-plus"></i></a>
+            <a v-if="data.result" @click="viewResults(data.result.id)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-receipt"></i></a>
           </div>
         </template>
       </Column>
@@ -307,6 +326,110 @@ const sendCandidateEmail = () => {
             <Button type="button" @click="sendCandidateEmail()" label="Send" />
           </div>
         </div>
+      </div>
+    </template>
+  </Drawer>
+  <Drawer :visible="openResultDialog" @update:visible="(value) => openResultDialog = value" header="" position="right" class="!w-full md:!w-80 lg:!w-[90rem]">
+    <template #container="{ closeCallback }">
+      <div class="px-6 py-5 flex items-center justify-between">
+        <span class="font-medium">Assessment Result</span>
+        <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
+      </div>
+      <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
+        <div class="flex flex-row gap-4 mb-2">
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Name</label>
+            <InputText :readonly="true" :value="assessmentResult.assessmentName" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+            <InputText :readonly="true" :value="assessmentResult.status" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Score</label>
+            <InputText :readonly="true" :value="assessmentResult.score" class="w-full"/>
+          </div>
+        </div>
+        <div class="flex flex-row gap-4 mb-2">
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Start</label>
+            <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.started)" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Completed</label>
+            <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.completed)" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Duration</label>
+            <InputText :readonly="true" :value="utils.inMinutes(assessmentResult.duration)" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Progress</label>
+            <InputText :readonly="true" :value="assessmentResult.progress" class="w-full"/>
+          </div>
+        </div>
+        <div class="flex flex-row gap-4 mb-2">
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Competency</label>
+            <InputText :readonly="true" :value="assessmentResult.competencyLevelName" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Lower</label>
+            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryLower)" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Upper</label>
+            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryUpper)" class="w-full"/>
+          </div>
+          <div class="flex-col gap-4 w-full">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">National Avg</label>
+            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.nationalAverage)" class="w-full"/>
+          </div>
+        </div>
+        <DataTable
+            :value="assessmentResult.details"
+            dataKey="id"
+            size="small"
+            :rowHover="true"
+            :loading="loadingDetailResults"
+            scroll-height="500px"
+            :scrollable="true"
+        >
+
+          <Column field="questionTitle" header="Question">
+            <template #body="{ data }">
+              <span class="text-sm font-semibold">{{ data.questionTitle }}</span>
+            </template>
+          </Column>
+          <Column field="answer" header="Answer">
+            <template #body="{ data }">
+              <span class="text-sm">{{ data.answer }}</span>
+            </template>
+          </Column>
+          <Column field="skill" header="Skill">
+            <template #body="{ data }">
+              <Chip :label="data.questionSkill" rounded class="text-sm" style="background-color: #41b883;color:white;"></Chip>
+            </template>
+          </Column>
+          <Column field="updated" header="Time">
+            <template #body="{ data }">
+              <span class="text-sm">{{ utils.formatDateTime(data.updated) }}</span>
+            </template>
+          </Column>
+          <Column field="pass" header="Pass">
+            <template #body="{ data }">
+              <i class="pi" :class="data.pass ? 'pi-check text-green-600' : 'pi-times text-red-600'"></i>
+            </template>
+          </Column>
+          <Column field="duration" header="Duration">
+            <template #body="{ data }">
+              <span class="text-sm">{{ utils.inMinutes(data.duration) }}</span>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+      <div class="p-6 flex justify-start">
+        <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
       </div>
     </template>
   </Drawer>

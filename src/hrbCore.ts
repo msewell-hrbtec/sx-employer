@@ -19,6 +19,7 @@ const state = reactive({
         key: "",
         image: "",
         favicon: "",
+        route: "",
         appPageTitle: "",
         url: "",
         desc: "",
@@ -68,25 +69,30 @@ export default {
                 this.setDomain(obj.domain)
             }
         } catch (Err) {}
-        let subdomain = window.location.pathname.split("/")[1];
-        let hostname = window.location.hostname.split(".")[0];
-        if (hostname === "localhost") {
-            subdomain = "bekynd";
-        }
+
+        let subdomain = window.location.pathname.split("/")[1]
         this.getDomainByRoute(subdomain).then((response) => {
             if (response) {
-                this.setDomain(response);
-                this.favicon();
-                this.title();
+                this.setDomain(response)
+                this.favicon()
+                this.title()
+            } else {
+                // not recognized, must use our saved value
+                if (!state?.domain?.route) {
+                    window.location.href = "/careerpilotjobs"
+                }
             }
         });
-        this.getEmployerStats().then((response: any) => {
-            empState.totalCandidates = response.payload.totalCandidates;
-            empState.totalAssessments = response.payload.totalAssessments;
-            empState.activeJobs = response.payload.activeJobs;
-            empState.newApplicationsWeek = response.payload.newApplicationsWeek;
-            empState.totalViewsMonth = response.payload.totalViewsMonth;
-        })
+        // only if we have an employer
+        if (state.employer.id) {
+            this.getEmployerStats().then((response: any) => {
+                empState.totalCandidates = response.payload.totalCandidates
+                empState.totalAssessments = response.payload.totalAssessments
+                empState.activeJobs = response.payload.activeJobs
+                empState.newApplicationsWeek = response.payload.newApplicationsWeek
+                empState.totalViewsMonth = response.payload.totalViewsMonth
+            })
+        }
     },
     favicon() {
         const link = document.getElementById("favicon")
@@ -105,32 +111,33 @@ export default {
         return empState;
     },
     setDomain(domain: any) {
-        if (!domain) return;
-        state.domain.id = domain.id || "";
-        state.domain.name = domain.name || "";
-        state.domain.key = domain.key || "";
-        state.domain.image = domain.image || "";
-        state.domain.favicon = domain.favicon || "";
-        state.domain.appPageTitle = domain.appPageTitle || "";
-        state.domain.url = domain.url || "";
-        state.domain.desc = domain.desc || "";
+        if (!domain) return
+        state.domain.id = domain.id || ""
+        state.domain.name = domain.name || ""
+        state.domain.key = domain.key || ""
+        state.domain.image = domain.image || ""
+        state.domain.favicon = domain.favicon || ""
+        state.domain.route = domain.route || ""
+        state.domain.appPageTitle = domain.appPageTitle || ""
+        state.domain.url = domain.url || ""
+        state.domain.desc = domain.desc || ""
     },
     getDomain() {
         return state.domain;
     },
     setUser(user: any) {
         if (!user) return;
-        state.user.id = user.id || "";
-        state.user.token = user.token || "";
-        state.user.firstName = user.firstName || "";
-        state.user.lastName = user.lastName || "";
-        state.user.image = user.image || "";
+        state.user.id = user.id || ""
+        state.user.token = user.token || ""
+        state.user.firstName = user.firstName || ""
+        state.user.lastName = user.lastName || ""
+        state.user.image = user.image || ""
     },
     getUser() {
-        return state.user;
+        return state.user
     },
     getEmployer() {
-        return state.employer;
+        return state.employer
     },
     title() {
         const link = document.getElementById("title")
@@ -160,62 +167,71 @@ export default {
     },
     saveState(obj?: any) {
         if (obj) {
-            state.user.id = obj.id;
-            state.user.token = obj.token;
-            state.user.email = obj.email;
-            state.user.firstName = obj.firstName;
-            state.user.lastName = obj.lastName;
-            state.user.image = obj.image;
-            state.domain.id = obj.domain.id;
-            state.domain.name = obj.domain.name;
-            state.domain.key = obj.domain.key;
-            state.domain.image = obj.domain.image;
-            state.domain.favicon = obj.domain.favicon;
-            state.domain.appPageTitle = obj.domain.appPageTitle;
-            state.domain.url = obj.domain.url;
-            state.domain.desc = obj.domain.desc;
-            state.employer.id = obj.employer.id;
-            state.employer.name = obj.employer.name;
-            state.employer.image = obj.employer.image;
-            state.employer.jobTargetEnabled = obj.employer.jobTargetEnabled;
+            state.user.id = obj.id
+            state.user.token = obj.token
+            state.user.email = obj.email
+            state.user.firstName = obj.firstName
+            state.user.lastName = obj.lastName
+            state.user.image = obj.image
+            state.domain.id = obj.domain.id
+            state.domain.name = obj.domain.name
+            state.domain.key = obj.domain.key
+            state.domain.image = obj.domain.image
+            state.domain.favicon = obj.domain.favicon
+            state.domain.appPageTitle = obj.domain.appPageTitle
+            state.domain.url = obj.domain.url
+            state.domain.desc = obj.domain.desc
+            state.employer.id = obj.employer.id
+            state.employer.name = obj.employer.name
+            state.employer.image = obj.employer.image
+            state.employer.jobTargetEnabled = obj.employer.jobTargetEnabled
         }
         localStorage.setItem(this.APP_KEY, JSON.stringify(state));
     },
     async sendChallenge(email: string) {
         return post(`public/challenge?did=${encodeURIComponent(state.domain.id)}&email=${encodeURIComponent(email)}`, {})
     },
+    async getAssessmentResult(arid: string) {
+        return get(`sxe/assessment-result?arid=${encodeURIComponent(arid)}`)
+    },
     async login(email: string, code: string, eid: string) {
         return post(`public/login?did=${encodeURIComponent(state.domain.id)}&email=${encodeURIComponent(email)}&code=${code}&eid=${encodeURIComponent(eid)}`, {})
     },
     async getDomainByRoute(route: string) {
-        return get(`public/domain-by-route?route=${route}`);
+        return get(`public/domain-by-route?route=${route}`)
     },
     async getEmployers() {
-        return get(`sxe/employers`);
+        return get(`sxe/employers`)
     },
     async getProfile() {
-        return get(`sxe/profile`);
+        return get(`sxe/profile`)
     },
     async getEmployerProfile() {
-        return get(`sxe/employer`);
+        return get(`sxe/employer`)
     },
     async getJobById(id: string) {
-        return get(`sxe/job-by-id?id=${encodeURIComponent(id)}`);
+        return get(`sxe/job-by-id?id=${encodeURIComponent(id)}`)
     },
     async getTeam() {
-        return get(`sxe/team`);
+        return get(`sxe/team`)
     },
     async addTeamMember(teamMember: any) {
-        return post(`sxe/team`, teamMember);
+        return post(`sxe/team`, teamMember)
+    },
+    async getPublishedJobsByEmployerId() {
+        return get(`sxe/all-jobs-by-employer`)
     },
     async getJobsByEmployerIdAndStatusWithPaging(status: string, pagingInfo: PagingInfo) {
-        return post(`sxe/jobs-by-employer?status=${status}`, pagingInfo);
+        return post(`sxe/jobs-by-employer?status=${status}`, pagingInfo)
     },
-    async getJobCandidatesByJobId(jobId: string) {
-        return get(`sxe/job-candidates?jid=${encodeURIComponent(jobId)}`);
+    async getCandidatesByJobId(jobId: string, pagingInfo: PagingInfo) {
+        return post(`sxe/candidates-by-job?jid=${encodeURIComponent(jobId)}`, pagingInfo)
+    },
+    async getCandidatesByAssessmentId(assId: string, pagingInfo: PagingInfo) {
+        return post(`sxe/candidates-by-assessment?aid=${encodeURIComponent(assId)}`, pagingInfo)
     },
     async removeTeamMembers(teamMembers: any) {
-        return post(`sxe/remove-team-members`, teamMembers);
+        return post(`sxe/remove-team-members`, teamMembers)
     },
     async jobTarget(id: string) {
         return post(`sxe/job-target?jobId=${id}`, {})
@@ -251,17 +267,26 @@ export default {
     async getJobTitles() {
         return get(`sxe/job-titles-by-employer`)
     },
+    async getAssessmentQuestions(aid: string) {
+        return get(`sxe/assessment-questions?aid=${encodeURIComponent(aid)}`)
+    },
     async getCandidatesByEmployerIdAndCompetencyLevelAndJobWithPaging(competencyLevel: string, jobTitle: string, pagingInfo: PagingInfo) {
-        return post(`sxe/candidates-by-employer?eid=${encodeURIComponent(state?.employer?.id)}&competencyLevel=${encodeURIComponent(competencyLevel)}&jobTitle=${encodeURIComponent(jobTitle)}`, pagingInfo);
+        return post(`sxe/candidates-by-employer?eid=${encodeURIComponent(state?.employer?.id)}&competencyLevel=${encodeURIComponent(competencyLevel)}&jobTitle=${encodeURIComponent(jobTitle)}`, pagingInfo)
     },
     async updateCandidateStatus(uid: string, jobId: string, status: string){
         return post(`sxe/update-candidate-status?uid=${encodeURIComponent(uid)}&jid=${encodeURIComponent(jobId)}&status=${encodeURIComponent(status)}`, {})
+    },
+    async getAssessmentById(aid: string) {
+        return get(`sxe/assessment-by-id?aid=${encodeURIComponent(aid)}`)
+    },
+    async getAssessmentsOnJobsWithPaging(pagingInfo: PagingInfo) {
+        return post(`sxe/assessments-with-jobs`, pagingInfo)
     },
     async archiveUserResources(resources: any) {
         return post(`sxe/archive-user-resources`, resources)
     },
     async getEmployerStats() {
-        return get(`sxe/employer-stats`)
+        return get(`public/employer-stats`)
     },
     async updateEmployer(employer: any) {
         const formData = new FormData()

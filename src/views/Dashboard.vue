@@ -10,14 +10,18 @@ import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Drawer from "primevue/drawer"
 import utils from "@/utils";
-import {PublishStatus, CandidateStatus, type Employer, States} from "@/types"
+import {PublishStatus, type Employer, States} from "@/types"
 import Job from "@/views/Job.vue";
 import Message from "primevue/message"
 import {Form} from "@primevue/forms"
 import Textarea from "primevue/textarea"
 import ResourceUpload from "@/components/ResourceUpload.vue"
+import CandidateDialog from "@/components/CandidateDialog.vue"
+import Dialog from "primevue/dialog"
 
-const jobCandidates = ref([])
+const openShareDialog = ref(false)
+const shareUrl = ref("")
+const candidateDialogRef: any = ref(null)
 const selectedStatus: any = ref("")
 const StatusArray: any = ref([])
 const jobs = ref([])
@@ -25,7 +29,7 @@ const loadingJobs = ref(false)
 const loadingJobCandidates = ref(false)
 const totalJobRecords = ref(0)
 const openJobTargetDialog = ref(false)
-const openCandidateDialog = ref(false)
+
 const jtManagerUrl = ref("")
 const openJobDialog = ref(false)
 const openEmployerDialog = ref(false)
@@ -42,7 +46,7 @@ const loadJobs = (event?: any) => {
   loadingJobs.value = true;
   let sortField = "job_publish_date"
   let sortOrder = "desc"
-  if (event) {
+  if (event && event.page) {
     jobPagingInfo.value.page = event.page + 1
   }
   jobPagingInfo.value.order = sortField + " " + sortOrder;
@@ -85,7 +89,14 @@ const editJob = (job: any) => {
   openJobDialog.value = true
 }
 const shareJob = (job: any) => {
-  console.log(job)
+  shareUrl.value = `https://careerpilot.skillxchange.io/${hrbCore.getDomain().route}/jobs/${job.id}`
+  setTimeout(function () {
+    const e = document.getElementById("shareUrl") as HTMLInputElement;
+    e.select();
+    e.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(e.value);
+  }, 500);
+  openShareDialog.value = true
 }
 const openJobTarget = (job: any) => {
   jtManagerUrl.value = ""
@@ -104,24 +115,7 @@ const openJobTarget = (job: any) => {
 const viewCandidates = (job: any) => {
   loadingJobCandidates.value = true;
   thisId.value = job.id
-  hrbCore.getJobCandidatesByJobId(job.id).then((response) => {
-    loadingJobCandidates.value = false
-    jobCandidates.value = response.payload.data
-    openCandidateDialog.value = true
-  });
-}
-const viewResume = (resume: any) => {
-  const win = window.open(`https://static.skillxchange.io/pdfviewer.html?url=${resume}`, "_blank")
-  if (win) {
-    win.focus()
-  }
-}
-const updateCandidateStatus = (candidate: any) => {
-  hrbCore.updateCandidateStatus(candidate.id, thisId.value, candidate.status).then((response) => {
-    if (!response.success) {
-      hrbCore.putMessage(response.message, true)
-    }
-  });
+  candidateDialogRef.value.showByJobId(job.id)
 }
 const editProfile = () => {
   openEmployerDialog.value = true
@@ -199,7 +193,7 @@ onMounted(() => {
       <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
         <i class="text-green-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg></i>
       </div>
-      <h4 class="font-semibold text-gray-900 mb-1">Find Talent</h4>
+      <h4 class="font-semibold text-gray-900 mb-1">Manage Talent</h4>
       <p class="text-sm text-gray-500">Browse and search candidates</p>
     </button>
     <button class="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group" @click="$router.push('/assessments')">
@@ -332,98 +326,19 @@ onMounted(() => {
       </div>
     </template>
   </Drawer>
-  <Drawer :visible="openCandidateDialog" @update:visible="(value) => openCandidateDialog = value" header="Right Drawer" position="right" class="!w-full md:!w-80 lg:!w-[70rem]">
-    <template #container="{ closeCallback }">
-      <div class="overflow-auto">
-        <div class="px-6 py-5 flex items-center justify-between">
-          <span class="font-medium">Candidates</span>
-          <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
-        </div>
-      </div>
-      <DataTable
-          :value="jobCandidates"
-          dataKey="id"
-          sort-mode="single"
-          :rowHover="true"
-          size="small"
-          sortField="email"
-          :loading="loadingJobCandidates"
-          :sort-order="1"
-          table-style="min-width: 50rem"
-      >
-        <template #empty> No candidates found. </template>
-        <template #loading> Loading candidate data. Please wait. </template>
-        <Column :sortable="true" field="firstName" header="Name">
-          <template #body="{ data }">
-            <span class="text-sm font-semibold">{{ data?.firstName + ' ' + data?.lastName }}</span>
-          </template>
-        </Column>
-        <Column :sortable="true" field="status" header="Candidate Status">
-          <template #body="{ data }">
-            <Select v-model="data.status" :options="Object.values(CandidateStatus)" optionLabel="label" optionValue="label" placeholder="All Statuses" class="w-full" @change="updateCandidateStatus(data)">
-              <template #value="data">
-                <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="utils.candidateStatusColor(data.value)">{{ data.value || data.placeholder}}</div>
-              </template>
-              <template #option="slotProps">
-                <div class="flex flex-row gap-2 items-center">
-                  <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="slotProps.option.color">{{ slotProps.option.label }}</div>
-                </div>
-              </template>
-            </Select>
-          </template>
-        </Column>
-        <Column :sortable="true" field="title" header="Job Title">
-          <template #body="{ data }">
-            <span class="text-sm">{{ data?.job ? data?.job.title : '' }}</span>
-          </template>
-        </Column>
-        <Column :sortable="true" field="score" header="Score" style="text-align: center">
-          <template #body="{ data }">
-            <span class="text-sm">{{ data?.result ? data?.result.score : '' }}</span>
-          </template>
-        </Column>
-        <Column field="payscale" header="Pay Scale">
-          <template #body="{ data }">
-            <span class="text-sm">{{ data?.result ? (data?.result?.salaryLower ? utils.formatCurrency(data?.result?.salaryUpper) + " - " + utils.formatCurrency(data?.result?.salaryUpper) : '') : ''}}</span>
-          </template>
-        </Column>
-        <Column field="competency" header="Competency">
-          <template #body="{ data }">
-            <span class="text-sm">{{ data?.result ? data?.result?.competencyLevelName : ''}}</span>
-          </template>
-        </Column>
-        <Column field="action" header="Action">
-          <template #body="{ data }">
-            <div class="flex flex-row">
-              <a v-if="data.resume" @click="viewResume(data.resume)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Resume"><i class="pi pi-file-check"></i></a>
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-      <div class="p-6 flex justify-start">
-        <Button @click="closeCallback" class="p-button p-component p-button-secondary" data-p="" type="button" aria-label="Logout" data-pc-name="button" data-p-disabled="false" data-p-severity="secondary" data-pc-section="root">
-          <span class="p-button-label" data-pc-section="label" data-p="" >Close</span>
-        </Button>
-      </div>
-    </template>
-  </Drawer>
+  <CandidateDialog ref="candidateDialogRef" />
   <Drawer :visible="openJobDialog" @update:visible="(value) => openJobDialog = value" header="Job Details" position="right" class="!w-full md:!w-80 lg:!w-[70rem]">
     <Job :id="thisId" />
   </Drawer>
-  <Drawer :visible="openEmployerDialog" @update:visible="(value) => openEmployerDialog = value" header="Employer Details" position="right" class="!w-full md:!w-80 lg:!w-[50rem]">
+  <Drawer :visible="openEmployerDialog" @update:visible="(value) => openEmployerDialog = value" header="Employer Details" position="right" class="!w-full md:!w-80 lg:!w-[70rem]">
     <template #container="{ closeCallback }">
-      <div class="overflow-auto">
-        <div class="px-6 py-5 flex items-center justify-between">
-          <span class="font-medium"></span>
-          <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
-        </div>
-      </div>
       <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
         <div class="flex items-center justify-between mb-6">
           <div>
             <h2 class="text-2xl font-bold text-gray-900">Employer Information</h2>
             <p class="text-gray-600 mt-1">Define the basic employer details</p>
           </div>
+          <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
         </div>
         <div class="flex gap-8 w-full">
           <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit" class="w-full">
@@ -444,12 +359,6 @@ onMounted(() => {
                   <InputText name="url" type="url" v-model="employer.url" placeholder="Url of employer" class="w-full"/>
                   <Message v-if="$form.url?.invalid" severity="error" size="small" variant="simple">{{ $form.url.error.message }}</Message>
                   <p class="text-xs text-gray-500 mt-1">This is the employer's website.</p>
-                </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Image
-                  </label>
-                  <ResourceUpload id="thumbnail" name="thumbnail" accept="image/*" button-label="Upload" v-model="employer.thumbnail" />
                 </div>
               </div>
               <div class="flex flex-row gap-2 w-full">
@@ -479,9 +388,15 @@ onMounted(() => {
               <div class="flex flex-row gap-2 w-full">
                 <div class="flex flex-col gap-2 w-full">
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Employer Image
+                  </label>
+                  <ResourceUpload id="thumbnail" name="thumbnail" accept="image/*" button-label="Upload" v-model="employer.thumbnail" />
+                </div>
+                <div class="flex flex-col gap-2 w-full">
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Employer Description <span class="text-red-500">*</span>
                   </label>
-                  <Textarea name="desc" v-model="employer.desc" placeholder="Description of employer" class="w-full"/>
+                  <Textarea rows="5" name="desc" v-model="employer.desc" placeholder="Description of employer" class="w-full"/>
                   <p class="text-xs text-gray-500 mt-1">This is the employer's description.</p>
                 </div>
               </div>
@@ -490,16 +405,14 @@ onMounted(() => {
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Employer Opportunity Description
                   </label>
-                  <Textarea name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of employer" class="w-full"/>
+                  <Textarea rows="5" name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of employer" class="w-full"/>
                   <p class="text-xs text-gray-500 mt-1">This is the employer's opportunity description.</p>
                 </div>
-              </div>
-              <div class="flex flex-row gap-2 w-full">
                 <div class="flex flex-col gap-2 w-full">
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
                     Employer Cultural Description
                   </label>
-                  <Textarea name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of employer" class="w-full"/>
+                  <Textarea rows="5" name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of employer" class="w-full"/>
                   <p class="text-xs text-gray-500 mt-1">This is the employer's cultural description.</p>
                 </div>
               </div>
@@ -513,4 +426,13 @@ onMounted(() => {
       </div>
     </template>
   </Drawer>
+  <Dialog v-model:visible="openShareDialog" modal header="Share Url" :style="{ width: '40rem' }">
+    <span class="text-surface-500 dark:text-surface-400 block mb-8">This is the job share url.   It has been copied to your clipboard.</span>
+    <div class="flex items-center gap-4 mb-4">
+      <InputText id="shareUrl" class="flex-auto w-full" autocomplete="off" :value="shareUrl" readonly/>
+    </div>
+    <template #footer>
+      <Button label="OK" text severity="secondary" @click="openShareDialog = false" autofocus />
+    </template>
+  </Dialog>
 </template>

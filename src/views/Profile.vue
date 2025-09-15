@@ -20,6 +20,7 @@ import TabPanels from "primevue/tabpanels"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import Avatar from "primevue/avatar"
+import PhoneNumberInput from "@/components/PhoneNumberInput.vue"
 
 const resourceUploadRef: any = ref(null)
 const StatesArray = Object.values(States)
@@ -265,7 +266,7 @@ const confirmResourceDelete = (event: any) => {
                             </div>
                             <div class="flex flex-col gap-2 w-full">
                               <label for="phone" >Phone</label>
-                              <InputText id="phone" type="text" v-model="user.phone" name="phone"/>
+                              <PhoneNumberInput id="phone" v-model="user.phone" name="phone"/>
                             </div>
                           </div>
                           <div class="flex flex-col gap-2 w-full">

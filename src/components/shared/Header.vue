@@ -188,54 +188,55 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="md:max-h-16 py-4 pr-4 flex md:flex-row flex-col items-center justify-between gap-3 border-b">
+  <header class="md:max-h-16 py-4 pr-4 flex md:flex-row flex-col items-center justify-between gap-3">
     <div class="flex items-center md:flex-1 gap-2">
-      <a @click="$router.push('/')">
-        <img :src="hrbCore.getDomain().image" class="mx-8" alt="Logo" style="width: 150px"/>
+      <img :src="hrbCore.getDomain().image" class="mx-8" alt="Logo" style="width: 150px"/>
+      <a href="/">
+        <div class="flex flex-row items-center gap-2">
+          <div class="flex flex-col">
+            <Avatar class="pi pi-briefcase text-blue-600! bg-blue-100!" shape="circle" />
+          </div>
+          <div class="flex flex-col">
+
+              <div class="flex flex-row font-bold">
+                {{hrbCore.employerStats().activeJobs}}
+              </div>
+              <div class="flex flex-row text-sm">
+                Active Jobs
+              </div>
+          </div>
+        </div>
       </a>
-      <div class="flex flex-row items-center gap-2">
-        <div class="flex flex-col">
-          <Avatar class="pi pi-briefcase text-blue-600! bg-blue-100!" shape="circle" />
-        </div>
-        <div class="flex flex-col">
-          <a href="/">
-            <div class="flex flex-row font-bold">
-              {{hrbCore.employerStats().activeJobs}}
-            </div>
-            <div class="flex flex-row text-sm">
-              Active Jobs
-            </div>
-          </a>
-        </div>
-      </div>
-      <div class="flex flex-row items-center gap-2">
-        <div class="flex flex-col">
-          <Avatar class="pi pi-users text-green-600! bg-green-100!" shape="circle"/>
-        </div>
-        <div class="flex flex-col">
-          <a href="/job-candidates">
-            <div class="flex flex-row font-bold">
-              {{hrbCore.employerStats().totalCandidates}}
-            </div>
-            <div class="flex flex-row text-sm">
-              Total Candidates
-            </div>
-          </a>
-        </div>
-      </div>
-      <div class="flex flex-row items-center gap-2">
-        <div class="flex flex-col">
-          <Avatar class="pi pi-pen-to-square text-purple-600! bg-purple-100!" shape="circle" />
-        </div>
-        <div class="flex flex-col">
-          <div class="flex flex-row font-bold">
-            {{hrbCore.employerStats().totalAssessments}}
+      <a href="/job-candidates">
+        <div class="flex flex-row items-center gap-2">
+          <div class="flex flex-col">
+            <Avatar class="pi pi-users text-green-600! bg-green-100!" shape="circle"/>
           </div>
-          <div class="flex flex-row text-sm">
-            Total Assessments
+          <div class="flex flex-col">
+              <div class="flex flex-row font-bold">
+                {{hrbCore.employerStats().totalCandidates}}
+              </div>
+              <div class="flex flex-row text-sm">
+                Total Candidates
+              </div>
           </div>
         </div>
-      </div>
+      </a>
+      <a href="/assessments">
+        <div class="flex flex-row items-center gap-2">
+          <div class="flex flex-col">
+            <Avatar class="pi pi-pen-to-square text-purple-600! bg-purple-100!" shape="circle" />
+          </div>
+          <div class="flex flex-col">
+              <div class="flex flex-row font-bold">
+                {{hrbCore.employerStats().totalAssessments}}
+              </div>
+              <div class="flex flex-row text-sm">
+                Total Assessments
+              </div>
+          </div>
+        </div>
+      </a>
     </div>
 
     <div class="flex items-center md:flex-row flex-col gap-4">
