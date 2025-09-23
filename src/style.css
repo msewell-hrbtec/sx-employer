@@ -11,3 +11,9 @@
     border-bottom-left-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
 }
+.p-chip {
+    background-color: #41b883!important;
+    color:white!important;
+    padding-block:unset!important;
+    font-weight: 200!important;
+}

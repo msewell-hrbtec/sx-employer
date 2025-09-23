@@ -1,29 +1,44 @@
 import Login from "@/views/Login.vue"
 import {createRouter, createWebHistory} from "vue-router"
-import hrbCore from "@/hrbCore.ts";
-import MainLayout from "@/layout/MainLayout.vue";
-import Dashboard from "@/views/Dashboard.vue";
+import hrbCore from "@/hrbCore.ts"
+import MainLayout from "@/layout/MainLayout.vue"
+import Dashboard from "@/views/Dashboard.vue"
+import Register from "@/views/Register.vue"
+import Candidates from "@/views/Candidates.vue"
+import Assessment from "@/views/Assessment.vue"
+import Job from "@/views/Job.vue"
 
 const routes = [
     {
-        path: '/login',
-        component: Login,
-    },{
         path: '/',
+        redirect: () => {
+            const domainRoute = hrbCore.getDomain()?.route || 'careerpilotjobs'
+            return `/${domainRoute}`
+        }
+    },
+    {
+        path: '/:domainRoute?/login',
+        component: Login,
+    },
+    {
+        path: '/:domainRoute?/register',
+        component: Register,
+    },{
+        path: '/:domainRoute?',
         component: MainLayout,
         children: [
             {
-                path: '/',
+                path: '',
                 component: Dashboard,
             },{
-                path: '/job',
-                component: () => import("@/views/Job.vue"),
+                path: 'job',
+                component: Job,
             },{
-                path: '/job-candidates',
-                component: () => import("@/views/Candidates.vue"),
+                path: 'job-candidates',
+                component: Candidates,
             },{
-                path: '/assessments',
-                component: () => import("@/views/Assessment.vue"),
+                path: 'assessments',
+                component: Assessment
             }
         ]
     },
@@ -38,7 +53,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to: any, _from: any, next: any) => {
-    if (to.path === '/login' || to.path === '/register-employer') {
+    if (to.path.indexOf('/login') !== -1 || to.path.indexOf('/register') !== -1) {
         next();
     } else {
         const stateStr = localStorage.getItem(hrbCore.APP_KEY)
@@ -47,10 +62,10 @@ router.beforeEach((to: any, _from: any, next: any) => {
             if (state && state.user.token) {
                 next()
             } else {
-                next('/login')
+                next(`/${to.params.domainRoute}/login`)
             }
         } else {
-            next('/login')
+            next(`/${to.params.domainRoute}/login`)
         }
     }
 });

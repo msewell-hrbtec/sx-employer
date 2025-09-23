@@ -151,7 +151,6 @@ const changeEmployer = () => {
         if (!response.success) {
           hrbCore.putMessage(response.message, true)
         } else {
-          hrbCore.saveState(response.payload)
           window.location.reload()
         }
       })
@@ -190,53 +189,45 @@ onMounted(() => {
 <template>
   <header class="md:max-h-16 py-4 pr-4 flex md:flex-row flex-col items-center justify-between gap-3">
     <div class="flex items-center md:flex-1 gap-2">
-      <img :src="hrbCore.getDomain().image" class="mx-8" alt="Logo" style="width: 150px"/>
-      <a href="/">
+      <RouterLink to="/">
+        <img :src="hrbCore.getEmployer().image" class="mx-8" alt="Logo" style="width: 150px"/>
+      </RouterLink>
+      <RouterLink to="/">
         <div class="flex flex-row items-center gap-2">
           <div class="flex flex-col">
             <Avatar class="pi pi-briefcase text-blue-600! bg-blue-100!" shape="circle" />
           </div>
           <div class="flex flex-col">
-
-              <div class="flex flex-row font-bold">
-                {{hrbCore.employerStats().activeJobs}}
-              </div>
               <div class="flex flex-row text-sm">
                 Active Jobs
               </div>
           </div>
         </div>
-      </a>
-      <a href="/job-candidates">
+      </RouterLink>
+      <RouterLink to="/job-candidates">
         <div class="flex flex-row items-center gap-2">
           <div class="flex flex-col">
             <Avatar class="pi pi-users text-green-600! bg-green-100!" shape="circle"/>
           </div>
           <div class="flex flex-col">
-              <div class="flex flex-row font-bold">
-                {{hrbCore.employerStats().totalCandidates}}
-              </div>
               <div class="flex flex-row text-sm">
-                Total Candidates
+                Candidates
               </div>
           </div>
         </div>
-      </a>
-      <a href="/assessments">
+      </RouterLink>
+      <RouterLink to="/assessments">
         <div class="flex flex-row items-center gap-2">
           <div class="flex flex-col">
             <Avatar class="pi pi-pen-to-square text-purple-600! bg-purple-100!" shape="circle" />
           </div>
           <div class="flex flex-col">
-              <div class="flex flex-row font-bold">
-                {{hrbCore.employerStats().totalAssessments}}
-              </div>
               <div class="flex flex-row text-sm">
-                Total Assessments
+                View Assessments
               </div>
           </div>
         </div>
-      </a>
+      </RouterLink>
     </div>
 
     <div class="flex items-center md:flex-row flex-col gap-4">

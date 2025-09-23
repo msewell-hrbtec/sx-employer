@@ -19,6 +19,7 @@ import ResourceUpload from "@/components/ResourceUpload.vue"
 import CandidateDialog from "@/components/CandidateDialog.vue"
 import Dialog from "primevue/dialog"
 
+const searchState = ref("")
 const openShareDialog = ref(false)
 const shareUrl = ref("")
 const candidateDialogRef: any = ref(null)
@@ -50,7 +51,7 @@ const loadJobs = (event?: any) => {
     jobPagingInfo.value.page = event.page + 1
   }
   jobPagingInfo.value.order = sortField + " " + sortOrder;
-  hrbCore.getJobsByEmployerIdAndStatusWithPaging(selectedStatus.value ? selectedStatus.value.label: "",jobPagingInfo.value).then((response) => {
+  hrbCore.getJobsByEmployerIdAndStateAndStatusWithPaging(searchState.value, selectedStatus.value ? selectedStatus.value.label: "",jobPagingInfo.value).then((response) => {
     loadingJobs.value = false;
     if (response.success) {
       jobs.value = response.payload.data
@@ -62,6 +63,9 @@ const jobsOnPage = (event: any) => {
   loadJobs(event)
 }
 const onJobFilter = () => {
+  if (searchState.value === null) {
+    searchState.value = ""
+  }
   jobPagingInfo.value.page = 1
   loadJobs()
 }
@@ -152,6 +156,10 @@ const handleSubmit = (event: any) => {
     })
   }
 }
+const refreshJobs = () => {
+  openJobDialog.value = false
+  loadJobs()
+}
 onMounted(() => {
   loadJobs()
   StatusArray.value = Object.values(PublishStatus)
@@ -182,26 +190,32 @@ onMounted(() => {
   </div>
   <div class="text-xl font-bold py-4">Quick Actions</div>
   <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-    <button class="bg-white p-6 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all group" @click="$router.push('/job')">
-      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+    <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all group" @click="$router.push('/job')">
+      <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center  group-hover:bg-blue-200 transition-colors">
         <i class="text-blue-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"></path></svg></i>
       </div>
-      <h4 class="font-semibold text-gray-900 mb-1">Post New Job</h4>
-      <p class="text-sm text-gray-500">Create and publish a new position</p>
+      <div class="flex flex-col grow">
+        <h4 class="font-semibold text-gray-900 mb-1">Create New Job</h4>
+        <p class="text-sm text-gray-500">Create a new position</p>
+      </div>
     </button>
-    <button class="bg-white p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-md transition-all group" @click="$router.push('/job-candidates')">
-      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
+    <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-md transition-all group" @click="$router.push('/job-candidates')">
+      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
         <i class="text-green-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg></i>
       </div>
-      <h4 class="font-semibold text-gray-900 mb-1">Manage Talent</h4>
-      <p class="text-sm text-gray-500">Browse and search candidates</p>
+      <div class="flex flex-col grow">
+        <h4 class="font-semibold text-gray-900 mb-1">Manage Talent</h4>
+        <p class="text-sm text-gray-500">Browse and search candidates</p>
+      </div>
     </button>
-    <button class="bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group" @click="$router.push('/assessments')">
-      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
+    <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group" @click="$router.push('/assessments')">
+      <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
         <i class="text-purple-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-clipboard-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="clipboard-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M192 0c-41.8 0-77.4 26.7-90.5 64H64C28.7 64 0 92.7 0 128V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H282.5C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM305 273L177 401c-9.4 9.4-24.6 9.4-33.9 0L79 337c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L271 239c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
       </div>
-      <h4 class="font-semibold text-gray-900 mb-1">View Assessments</h4>
-      <p class="text-sm text-gray-500">Review candidate assessments</p>
+      <div class="flex flex-col grow">
+        <h4 class="font-semibold text-gray-900 mb-1">View Assessments</h4>
+        <p class="text-sm text-gray-500">Review candidate assessments</p>
+      </div>
     </button>
   </div>
   <DataTable
@@ -223,6 +237,9 @@ onMounted(() => {
             <InputIcon class="pi pi-search" />
             <InputText type="text" placeholder="Search jobs..." style="color: #9da4b0" v-model="jobPagingInfo.query" @input="onJobFilter()" />
           </IconField>
+        </div>
+        <div class="flex flex-col">
+          <Select v-model="searchState" :options="Object.values(States)" placeholder="All States" class="w-full" showClear @change="onJobFilter()"/>
         </div>
         <div class="flex flex-col">
           <Select v-model="selectedStatus" :options="StatusArray" optionLabel="label" placeholder="All Statuses" class="w-full" showClear @change="onJobFilter()">
@@ -272,7 +289,7 @@ onMounted(() => {
           <a :href="'https://careerpilot.skillxchange.io/jobs/' + data?.id" target="_blank" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Details"><i class="pi pi-eye"></i></a>
           <a href="#" @click="shareJob(data)" class="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50" title="Share Job"><i class="pi pi-share-alt"></i></a>
           <a href="#" @click="editJob(data)" class="p-2 text-gray-400 hover:text-orange-600 rounded-lg hover:bg-orange-50" title="Edit Job"><i class="pi pi-pencil"></i></a>
-          <a href="#" @click="openJobTarget(data)" v-if="hrbCore.getEmployer().jobTargetEnabled" class="p-2 text-gray-400 hover:text-purple-600 rounded-lg hover:bg-purple-50" title="Job Target"><img src="https://static.skillxchange.io/images/jobtarget.ico" style="width: 16px;" /></a>
+          <a href="#" @click="openJobTarget(data)" v-if="hrbCore.getEmployer().jobTargetEnabled" class="p-2 text-gray-400 hover:text-purple-600 rounded-lg hover:bg-purple-50" title="Job Target"><i class="pi pi-megaphone" /></a>
         </div>
       </template>
     </Column>
@@ -328,100 +345,102 @@ onMounted(() => {
   </Drawer>
   <CandidateDialog ref="candidateDialogRef" />
   <Drawer :visible="openJobDialog" @update:visible="(value) => openJobDialog = value" header="Job Details" position="right" class="!w-full md:!w-80 lg:!w-[70rem]">
-    <Job :id="thisId" />
+    <Job :id="thisId" @reload="refreshJobs" />
   </Drawer>
   <Drawer :visible="openEmployerDialog" @update:visible="(value) => openEmployerDialog = value" header="Employer Details" position="right" class="!w-full md:!w-80 lg:!w-[70rem]">
     <template #container="{ closeCallback }">
-      <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
-        <div class="flex items-center justify-between mb-6">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900">Employer Information</h2>
-            <p class="text-gray-600 mt-1">Define the basic employer details</p>
+      <div class="overflow-auto">
+        <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-2xl font-bold text-gray-900">Employer Information</h2>
+              <p class="text-gray-600 mt-1">Define the basic employer details</p>
+            </div>
+            <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
           </div>
-          <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
-        </div>
-        <div class="flex gap-8 w-full">
-          <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit" class="w-full">
-            <div class="space-y-6 w-full">
-              <div class="flex flex-row gap-2 w-full">
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Name <span class="text-red-500">*</span>
-                  </label>
-                  <InputText name="name" v-model="employer.name" placeholder="Name of employer" class="w-full"/>
-                  <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error.message }}</Message>
-                  <p class="text-xs text-gray-500 mt-1">This will be the employer name candidates see</p>
+          <div class="flex gap-8 w-full">
+            <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit" class="w-full">
+              <div class="space-y-6 w-full">
+                <div class="flex flex-row gap-2 w-full">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Name <span class="text-red-500">*</span>
+                    </label>
+                    <InputText name="name" v-model="employer.name" placeholder="Name of employer" class="w-full"/>
+                    <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error.message }}</Message>
+                    <p class="text-xs text-gray-500 mt-1">This will be the employer name candidates see</p>
+                  </div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Url <span class="text-red-500">*</span>
+                    </label>
+                    <InputText name="url" type="url" v-model="employer.url" placeholder="Url of employer" class="w-full"/>
+                    <Message v-if="$form.url?.invalid" severity="error" size="small" variant="simple">{{ $form.url.error.message }}</Message>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's website.</p>
+                  </div>
                 </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Url <span class="text-red-500">*</span>
-                  </label>
-                  <InputText name="url" type="url" v-model="employer.url" placeholder="Url of employer" class="w-full"/>
-                  <Message v-if="$form.url?.invalid" severity="error" size="small" variant="simple">{{ $form.url.error.message }}</Message>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's website.</p>
+                <div class="flex flex-row gap-2 w-full">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer City <span class="text-red-500">*</span>
+                    </label>
+                    <InputText name="city" v-model="employer.city" placeholder="City of employer" class="w-full"/>
+                  </div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer State <span class="text-red-500">*</span>
+                    </label>
+                    <Select name="state" v-model="employer.state" :options="Object.values(States)" placeholder="Select a state" class="w-full" />
+                    <Message v-if="$form.state?.invalid" severity="error" size="small" variant="simple">{{ $form.state.error.message }}</Message>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's state.</p>
+                  </div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Postal <span class="text-red-500">*</span>
+                    </label>
+                    <InputText name="postalCode" v-model="employer.postalCode" placeholder="Postal code of employer" class="w-full"/>
+                    <Message v-if="$form.postalCode?.invalid" severity="error" size="small" variant="simple">{{ $form.postalCode.error.message }}</Message>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's postal code.</p>
+                  </div>
+                </div>
+                <div class="flex flex-row gap-2 w-full">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Image
+                    </label>
+                    <ResourceUpload id="thumbnail" name="thumbnail" accept="image/*" button-label="Upload" v-model="employer.thumbnail" />
+                  </div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Description <span class="text-red-500">*</span>
+                    </label>
+                    <Textarea rows="5" name="desc" v-model="employer.desc" placeholder="Description of employer" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's description.</p>
+                  </div>
+                </div>
+                <div class="flex flex-row gap-2 w-full">
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Opportunity Description
+                    </label>
+                    <Textarea rows="5" name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of employer" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's opportunity description.</p>
+                  </div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                      Employer Cultural Description
+                    </label>
+                    <Textarea rows="5" name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of employer" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the employer's cultural description.</p>
+                  </div>
                 </div>
               </div>
-              <div class="flex flex-row gap-2 w-full">
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer City <span class="text-red-500">*</span>
-                  </label>
-                  <InputText name="city" v-model="employer.city" placeholder="City of employer" class="w-full"/>
-                </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer State <span class="text-red-500">*</span>
-                  </label>
-                  <Select name="state" v-model="employer.state" :options="Object.values(States)" placeholder="Select a state" class="w-full" />
-                  <Message v-if="$form.state?.invalid" severity="error" size="small" variant="simple">{{ $form.state.error.message }}</Message>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's state.</p>
-                </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Postal <span class="text-red-500">*</span>
-                  </label>
-                  <InputText name="postalCode" v-model="employer.postalCode" placeholder="Postal code of employer" class="w-full"/>
-                  <Message v-if="$form.postalCode?.invalid" severity="error" size="small" variant="simple">{{ $form.postalCode.error.message }}</Message>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's postal code.</p>
-                </div>
+              <div class="p-6 flex justify-between">
+                <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
+                <Button type="submit" label="Save" />
               </div>
-              <div class="flex flex-row gap-2 w-full">
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Image
-                  </label>
-                  <ResourceUpload id="thumbnail" name="thumbnail" accept="image/*" button-label="Upload" v-model="employer.thumbnail" />
-                </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Description <span class="text-red-500">*</span>
-                  </label>
-                  <Textarea rows="5" name="desc" v-model="employer.desc" placeholder="Description of employer" class="w-full"/>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's description.</p>
-                </div>
-              </div>
-              <div class="flex flex-row gap-2 w-full">
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Opportunity Description
-                  </label>
-                  <Textarea rows="5" name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of employer" class="w-full"/>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's opportunity description.</p>
-                </div>
-                <div class="flex flex-col gap-2 w-full">
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Employer Cultural Description
-                  </label>
-                  <Textarea rows="5" name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of employer" class="w-full"/>
-                  <p class="text-xs text-gray-500 mt-1">This is the employer's cultural description.</p>
-                </div>
-              </div>
-            </div>
-            <div class="p-6 flex justify-between">
-              <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
-              <Button type="submit" label="Save" />
-            </div>
-          </Form>
+            </Form>
+          </div>
         </div>
       </div>
     </template>

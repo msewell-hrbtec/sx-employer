@@ -3,15 +3,12 @@
 import InputText from "primevue/inputtext";
 
 const props = defineProps({
-  required: {
-    type: Boolean,
-    default: false
-  },
   id: {
     type: String,
   },
   name: {
     type: String,
+    required: true,
   },
   placeholder: {
     type: String,
@@ -19,12 +16,16 @@ const props = defineProps({
   modelValue: {
     type: String,
   },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
   // eslint-disable-next-line vue/no-reserved-props
   class: {
     type: String,
   },
 });
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(["update:modelValue"]);
 
 function formatPhoneNumber(num: any) {
   if (num === undefined || num === null) {
@@ -43,24 +44,22 @@ function formatPhoneNumber(num: any) {
 }
 function markInvalid(isInvalid: boolean) {
   const inputDiv = document.getElementById(props.id as string);
-  if (props.required && inputDiv) {
+  if (inputDiv) {
     if (isInvalid) {
-      inputDiv.classList.remove("is-valid");
-      inputDiv.classList.add("is-invalid");
+      inputDiv.classList.add("p-invalid");
     } else {
-      inputDiv.classList.remove("is-invalid");
-      inputDiv.classList.add("is-valid");
+      inputDiv.classList.remove("p-invalid");
     }
   }
 }
 function change(e: KeyboardEvent) {
+  formatPhoneNumber((e.target as HTMLInputElement).value);
   emit("update:modelValue", (e.target as HTMLInputElement).value);
-  emit("change");
 }
 function loseFocus(e: FocusEvent) {
   (e.target as HTMLInputElement).value = formatPhoneNumber((e.target as HTMLInputElement).value);
 }
 </script>
 <template>
-  <InputText :id="props.id" class="flex w-full" type="tel" :placeholder="props.placeholder" :value="formatPhoneNumber(props.modelValue)" :required="props.required" @blur="loseFocus" @keyup="change" />
+  <InputText :id="props.id" :readonly="props.readonly" :name="props.name" class="flex w-full" type="tel" :placeholder="props.placeholder" v-model="props.modelValue" @blur="loseFocus" @keyup="change" />
 </template>

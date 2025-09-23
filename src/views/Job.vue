@@ -122,66 +122,51 @@ const toggleBenefits = (event: any) => {
   } else {
     noBenefits.value = false
   }
-  let benefits = ''
+  let thisBenefits = ""
   if (medicalInsurance.value) {
-    benefits += "medical-insurance|"
+    thisBenefits += "medical-insurance|"
   }
   if (dentalInsurance.value) {
-    benefits += "dental-insurance|"
+    thisBenefits += "dental-insurance|"
   }
   if (visionInsurance.value) {
-    benefits += "vision-insurance|"
+    thisBenefits += "vision-insurance|"
   }
   if (retirementPlan.value) {
-    benefits += "retirement-plan|"
+    thisBenefits += "retirement-plan|"
   }
   if (lifeInsurance.value) {
-    benefits += "life-insurance|"
+    thisBenefits += "life-insurance|"
   }
   if (noBenefits.value) {
-    benefits += "no-benefits"
+    thisBenefits += "no-benefits"
   } else {
-    benefits = benefits.substring(0, benefits.length - 1)
+    thisBenefits = thisBenefits.substring(0, thisBenefits.length - 1)
   }
-  updateField("benefits", benefits)
+  job.value.benefits = thisBenefits
 }
 
-const updateRequiredSkills = () => {
-  updateField("requiredSkills", skills.value.join("|"))
-}
-
-const updateResponsibilities = () => {
-  updateField("responsibilities", responsibilities.value.join("|"))
-}
-
-const updateQualifications = () => {
-  updateField("qualifications", qualifications.value.join("|"))
-}
 
 const addResponsibility = () => {
   if (responsibility.value) {
     responsibilities.value.push(responsibility.value.trim())
-    updateResponsibilities()
     responsibility.value = ""
   }
 }
 
 const removeResponsibility = (responsibility: string) => {
   responsibilities.value = responsibilities.value.filter((item: string) => item !== responsibility)
-  updateResponsibilities()
 }
 
 const addSkill = () => {
   if (skill.value) {
     skills.value.push(skill.value.trim())
-    updateRequiredSkills()
     skill.value = ""
   }
 }
 
 const removeSkill = (skill: string) => {
   skills.value = skills.value.filter((item: string) => item !== skill)
-  updateRequiredSkills()
 }
 
 const getSkillButtonColor = (index: number) => {
@@ -197,14 +182,12 @@ const getSkillTextColor = (index: number) => {
 const addQualification = () => {
   if (qualification.value) {
     qualifications.value.push(qualification.value.trim())
-    updateQualifications()
     qualification.value = ""
   }
 }
 
 const removeQualification = (qualification: string) => {
   qualifications.value = qualifications.value.filter((item: string) => item !== qualification)
-  updateQualifications()
 }
 
 const strToArray = (str: string | undefined) => {
@@ -251,12 +234,18 @@ const handleSubmit = (evt: any) => {
     job.value.payFrequency = PayFrequency.BI_WEEKLY
     job.value.employmentType = EmploymentType.FULL_TIME
     job.value.travel = Travel.TRAVEL_NONE
-
+    job.value.publishStatus = publishStatus.value.label
+    job.value.responsibilities = responsibilities.value.join("|")
+    job.value.requiredSkills = skills.value.join("|")
+    job.value.qualifications = qualifications.value.join("|")
     hrbCore.generateAI(job.value).then((response: any) => {
       loadingAI.value = false
       if (response.success) {
-        isNewJob.value = false
         loadJob(response.payload.id)
+        if (!isNewJob.value) {
+          emit("reload")
+        }
+        isNewJob.value = false
       } else {
         hrbCore.putMessage(response.message, true)
       }
@@ -335,17 +324,6 @@ const loadJob = (jobId: string) => {
     }
   })
 }
-const updateField = (field: string, value: any) => {
-  if (isNewJob.value) {
-    return
-  }
-  hrbCore.updateJobField(job.value.id, field, value).then((response: any) => {
-    if (!response.success) {
-      hrbCore.putMessage(response.message, true)
-    }
-  })
-}
-
 onMounted(() => {
   hrbCore.getJobIndustries().then((response: any) => {
     industries.value = response.payload
@@ -362,6 +340,7 @@ onMounted(() => {
     publishStatus.value = PublishStatus.INCOMPLETE
   }
 })
+const emit = defineEmits(["reload"]);
 </script>
 <template>
   <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit">
@@ -373,10 +352,6 @@ onMounted(() => {
             <h2 class="text-2xl font-bold text-gray-900">Core Job Information</h2>
             <p class="text-gray-600 mt-1">Start by defining the basic details of your job posting</p>
           </div>
-          <div class="flex items-center space-x-2" v-if="!isNewJob">
-            <div class="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span class="text-sm text-gray-600">Auto-save enabled</span>
-          </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -387,7 +362,7 @@ onMounted(() => {
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Job Title <span class="text-red-500">*</span>
               </label>
-              <InputText name="title" v-model="job.title" placeholder="e.g. Senior Frontend Developer" class="w-full" @change="() => updateField('title', job.title)"/>
+              <InputText name="title" v-model="job.title" placeholder="e.g. Senior Frontend Developer" class="w-full"/>
               <Message v-if="$form.title?.invalid" severity="error" size="small" variant="simple">{{ $form.title.error.message }}</Message>
               <p class="text-xs text-gray-500 mt-1">This will be the main headline candidates see</p>
             </div>
@@ -396,7 +371,7 @@ onMounted(() => {
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Industry <span class="text-red-500">*</span>
               </label>
-              <Select name="industry" v-model="job.industry" :options="industries" optionLabel="name" optionValue="name" placeholder="Select an industry" class="w-full" @change="() => updateField('industry', job.industry)"/>
+              <Select name="industry" v-model="job.industry" :options="industries" optionLabel="name" optionValue="name" placeholder="Select an industry" class="w-full"/>
               <Message v-if="$form.industry?.invalid" severity="error" size="small" variant="simple">{{ $form.industry.error.message }}</Message>
             </div>
 
@@ -405,7 +380,7 @@ onMounted(() => {
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Department <span class="text-red-500">*</span>
               </label>
-              <Select name="category" v-model="job.category" :options="categories" optionLabel="name" optionValue="name" placeholder="Select a category" class="w-full" @change="() => updateField('category', job.category)"/>
+              <Select name="category" v-model="job.category" :options="categories" optionLabel="name" optionValue="name" placeholder="Select a category" class="w-full"/>
               <Message v-if="$form.category?.invalid" severity="error" size="small" variant="simple">{{ $form.category.error.message }}</Message>
             </div>
 
@@ -413,7 +388,7 @@ onMounted(() => {
             <div v-if="!isNewJob">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Publish Status <span class="text-red-500">*</span></label>
               <div class="relative">
-                <Select v-model="publishStatus" :options="Object.values(PublishStatus)" optionLabel="label" class="w-full" @change="() => updateField('publishStatus', publishStatus.label)">
+                <Select v-model="publishStatus" :options="Object.values(PublishStatus)" optionLabel="label" class="w-full">
                   <template #value="data">
                     <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="utils.publishStatusColor(data.value?.label)">{{ data.value?.label || data.placeholder }}</div>
                   </template>
@@ -433,7 +408,7 @@ onMounted(() => {
                 <p class="text-sm text-gray-600">Automatically repost when the listing expires</p>
               </div>
               <label class="relative cursor-pointer">
-                <ToggleSwitch v-model="job.autoRenew" @change="() => updateField('autoRenew', job.autoRenew)" />
+                <ToggleSwitch v-model="job.autoRenew" />
               </label>
             </div>
           </div>
@@ -449,7 +424,7 @@ onMounted(() => {
                 <div class="grid gap-3" :class="'grid-cols-' + Object.values(WorkEnvironment).length">
                   <template v-for="workEnvironment in Object.values(WorkEnvironment)" :key="workEnvironment">
                     <label class="flex items-center p-3 border rounded-lg cursor-pointer " :class="job.workEnvironment === workEnvironment ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
-                      <RadioButton v-model="job.workEnvironment" :value="workEnvironment" @change="() => updateField('workEnvironment', job.workEnvironment)" />
+                      <RadioButton v-model="job.workEnvironment" :value="workEnvironment" />
                       <i class="pl-1" :class="getIconForWorkEnvironment(workEnvironment) + ' ' + (job.workEnvironment === workEnvironment ? 'text-blue-600' : 'text-gray-600')"></i>
                       <span class="pl-1 text-sm font-medium" :class="job.workEnvironment ===workEnvironment ? 'text-blue-600' : 'text-gray-600'">{{workEnvironment}}</span>
                     </label>
@@ -461,25 +436,25 @@ onMounted(() => {
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">Address Line</label>
-                  <InputText v-model="job.address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="123 Main Street" @change="() => updateField('address', job.address)" />
+                  <InputText v-model="job.address" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="123 Main Street" />
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">City <span class="text-red-500">*</span></label>
-                    <InputText name="city" v-model="job.city" class="w-full" placeholder="Austin" @change="() => updateField('city', job.city)" />
+                    <InputText name="city" v-model="job.city" class="w-full" placeholder="Austin"/>
                     <Message v-if="$form.city?.invalid" severity="error" size="small" variant="simple">{{ $form.city.error.message }}</Message>
                   </div>
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">State <span class="text-red-500">*</span></label>
                     <div class="relative">
-                      <Select name="state" v-model="job.state" :options="Object.values(States)" placeholder="Select a state" class="w-full" @change="() => updateField('state', job.state)" />
+                      <Select name="state" v-model="job.state" :options="Object.values(States)" placeholder="Select a state" class="w-full" />
                       <Message v-if="$form.state?.invalid" severity="error" size="small" variant="simple">{{ $form.state.error.message }}</Message>
                     </div>
                   </div>
                   <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Postal Code <span class="text-red-500">*</span></label>
-                    <InputText name="postal" v-model="job.postal" class="w-full" placeholder="78701" @change="() => updateField('postal', job.postal)" />
+                    <InputText name="postal" v-model="job.postal" class="w-full" placeholder="78701" />
                     <Message v-if="$form.postal?.invalid" severity="error" size="small" variant="simple">{{ $form.postal.error.message }}</Message>
                   </div>
                 </div>
@@ -504,7 +479,7 @@ onMounted(() => {
             <p class="text-gray-600 mt-1">Create a compelling description that attracts the right candidates</p>
           </div>
         </div>
-        <Editor v-model="job.description" editorStyle="height: 150px" @change="() => updateField('description', job.description)" />
+        <Editor v-model="job.description" editorStyle="height: 150px" />
       </div>
     </section>
     <!-- Compensation Section -->
@@ -566,7 +541,7 @@ onMounted(() => {
               <div class="grid gap-3" :class="'grid-cols-' + Object.values(PayType).length">
                 <template v-for="payType in Object.values(PayType)" :key="payType">
                   <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer " :class="job.payType === payType ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
-                    <RadioButton v-model="job.payType" :value="payType" @change="() => updateField('payType', job.payType)"/>
+                    <RadioButton v-model="job.payType" :value="payType"/>
                     <i class="pl-1 text-gray-600 mb-1" :class="getIconForPayType(payType) + ' ' + (job.payType === payType ? 'text-blue-600' : 'text-gray-600')"></i>
                     <div class="pl-1 text-sm font-medium text-normal text-nowrap" :class="job.payType === payType ? 'text-blue-600' : 'text-gray-600'">{{payType.replace("Salary", "")}}</div>
                   </label>
@@ -589,24 +564,24 @@ onMounted(() => {
             <div class="grid grid-cols-2 gap-4">
               <div v-if="showSalaryRange">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Salary</label>
-                <InputNumber @change="() => updateField('salaryLower', job.salaryLower)" v-model="job.salaryLower" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$75,000" />
+                <InputNumber v-model="job.salaryLower" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$75,000" />
               </div>
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">{{showSalaryRange ? 'Maximum Salary' : 'Salary'}}</label>
-                <InputNumber @change="() => updateField('salaryUpper', job.salaryUpper)" v-model="job.salaryUpper" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$95,000" />
+                <InputNumber v-model="job.salaryUpper" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$95,000" />
               </div>
             </div>
 
             <!-- Pay Frequency -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Pay Frequency</label>
-              <Select @change="() => updateField('payFrequency', job.payFrequency)" v-model="job.payFrequency" :options="Object.values(PayFrequency)" placeholder="Select a pay frequency" class="w-full" />
+              <Select v-model="job.payFrequency" :options="Object.values(PayFrequency)" placeholder="Select a pay frequency" class="w-full" />
             </div>
 
             <!-- Travel Requirement -->
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">Travel Requirement</label>
-              <Select @change="() => updateField('travel', job.travel)" v-model="job.travel" :options="Object.values(Travel)" placeholder="Select a travel requirement" class="w-full" />
+              <Select v-model="job.travel" :options="Object.values(Travel)" placeholder="Select a travel requirement" class="w-full" />
             </div>
 
             <!-- Employment Type -->
@@ -615,7 +590,7 @@ onMounted(() => {
               <div class="grid gap-3 grid-cols-2">
                 <template v-for="employmentType in Object.values(EmploymentType)" :key="employmentType">
                   <label class="flex items-center p-3 border rounded-lg cursor-pointer " :class="job.employmentType === employmentType ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
-                    <RadioButton @change="() => updateField('employmentType', job.employmentType)" v-model="job.employmentType" :value="employmentType" class="sr-only"/>
+                    <RadioButton v-model="job.employmentType" :value="employmentType" class="sr-only"/>
                     <i class="pl-1 fas fa-building" :class="getIconForEmploymentType(employmentType) + ' ' + (job.employmentType === employmentType ? 'text-blue-600' : 'text-gray-600')"></i>
                     <span class="pl-1 text-sm font-medium" :class="job.employmentType === employmentType ? 'text-blue-600' : 'text-gray-600'">{{employmentType}}</span>
                   </label>
@@ -668,7 +643,7 @@ onMounted(() => {
             <div class="grid gap-3 grid-cols-2">
               <template v-for="incentiveCompensation in Object.values(IncentiveCompensation)" :key="incentiveCompensation">
                 <label class="flex items-center p-3 border rounded-lg cursor-pointer " :class="job.incentiveCompensation === incentiveCompensation ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
-                  <RadioButton v-model="job.incentiveCompensation" :value="incentiveCompensation" @change="() => updateField('incentiveCompensation', job.incentiveCompensation)"/>
+                  <RadioButton v-model="job.incentiveCompensation" :value="incentiveCompensation"/>
                   <i class="pl-1 fas fa-building" :class="getIconForIncentiveCompensation(incentiveCompensation) + ' ' + (job.incentiveCompensation === incentiveCompensation ? 'text-blue-600' : 'text-gray-600')"></i>
                   <span class="pl-1 text-sm font-medium" :class="job.incentiveCompensation === incentiveCompensation ? 'text-blue-600' : 'text-gray-600'">{{incentiveCompensation}}</span>
                 </label>
@@ -681,7 +656,7 @@ onMounted(() => {
                   <h4 class="font-medium text-gray-900">Signing Bonus</h4>
                   <p class="text-sm text-gray-600">One-time bonus for accepting the position</p>
                 </div>
-                <InputNumber v-model="job.signingBonus" inputId="currency-us" mode="currency" currency="USD" locale="en-US" placeholder="$5,000" @change="() => updateField('signingBonus', job.signingBonus)" />
+                <InputNumber v-model="job.signingBonus" inputId="currency-us" mode="currency" currency="USD" locale="en-US" placeholder="$5,000" />
               </div>
             </div>
           </div>
@@ -709,7 +684,7 @@ onMounted(() => {
             <!-- Skill Input -->
             <div class="mb-4">
               <InputGroup>
-                <InputText v-model="skill" placeholder="Type a skill and press Enter" @keyup.enter="addSkill" @change="() => updateRequiredSkills()" />
+                <InputText v-model="skill" placeholder="Type a skill and press Enter" @keyup.enter="addSkill"  />
                 <InputGroupAddon>
                   <Button @click="addSkill" icon="pi pi-plus" severity="primary" />
                 </InputGroupAddon>
@@ -739,7 +714,7 @@ onMounted(() => {
             <!-- Responsibility Input -->
             <div class="mb-4">
               <InputGroup>
-                <InputText v-model="responsibility" placeholder="Describe a key responsibility" @keyup.enter="addResponsibility" @change="() => updateResponsibilities()" />
+                <InputText v-model="responsibility" placeholder="Describe a key responsibility" @keyup.enter="addResponsibility" />
                 <InputGroupAddon>
                   <Button @click="addResponsibility" icon="pi pi-plus" severity="success" />
                 </InputGroupAddon>
@@ -792,7 +767,7 @@ onMounted(() => {
               <div class="space-y-2">
                 <template v-for="educationLevel in Object.values(EducationLevel)" :key="educationLevel">
                   <label class="flex items-center space-x-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50" :class="job.minEducation === educationLevel ? 'border-blue-500 bg-blue-50' : 'hover:bg-gray-50 border-gray-300'">
-                    <RadioButton :id="'education-level-' + educationLevel" v-model="job.minEducation" :value="educationLevel" @change="() => updateField('minEducation', job.minEducation)" />
+                    <RadioButton :id="'education-level-' + educationLevel" v-model="job.minEducation" :value="educationLevel" />
                     <span class="text-sm">{{educationLevel}}</span>
                   </label>
                 </template>
@@ -808,7 +783,7 @@ onMounted(() => {
               <label class="block text-sm font-semibold text-gray-700 mb-2">Years of Experience</label>
               <div class="grid gap-3">
                 <div>
-                  <Select v-model="job.experienceLevel" :options="Object.values(ExperienceLevel)" placeholder="Experience Level" class="w-full" @change="() => updateField('experienceLevel', job.experienceLevel)" />
+                  <Select v-model="job.experienceLevel" :options="Object.values(ExperienceLevel)" placeholder="Experience Level" class="w-full" />
                 </div>
               </div>
             </div>
@@ -859,6 +834,12 @@ onMounted(() => {
               <h3 class="text-lg font-semibold text-gray-900">Job Details Complete</h3>
               <p class="text-sm text-gray-600">All required information has been provided</p>
             </div>
+          </div>
+          <div class="flex items-center">
+            <Button :disabled="loadingAI" type="submit" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+              <i class="fas" :class="loadingAI ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+              <span>{{loadingAI ? 'Saving...' : 'Save'}}</span>
+            </Button>
           </div>
         </div>
       </div>

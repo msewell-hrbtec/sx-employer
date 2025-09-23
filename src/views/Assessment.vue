@@ -71,10 +71,10 @@ const loadAssessments = (event?: any) => {
   let sortField = "as_name"
   let sortOrder = "desc"
   if (event) {
-    if (event.page) {
+    if ('page' in event) {
       assessmentPagingInfo.value.page = event.page + 1
     }
-    if (event.sortField) {
+    if ('sortField' in event && event.sortField) {
       sortField = event.sortField
       sortOrder = event.sortOrder === -1 ? "desc" : "asc"
     }
@@ -152,7 +152,6 @@ onMounted(() => {
         @page="assessmentsOnPage($event)"
         @sort="assessmentsOnSort($event)"
         :rowHover="true"
-        sortField="email"
         :loading="loadingAssessments"
         :sort-order="1"
         showCurrentPageReport
@@ -235,65 +234,65 @@ onMounted(() => {
         </div>
         <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 m-3 p-6">
-        <div class="flex gap-8 w-full mb-4">
-          <div class="flex flex-row gap-2 w-full">
-            <div class="flex flex-col gap-2 w-1/3">
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Assessment Name
-              </label>
-              <InputText name="name" :readonly="true" v-model="assessment.name" placeholder="Name of assessment" class="w-full"/>
-            </div>
-            <div class="flex flex-col gap-2 w-2/3">
-              <label class="block text-sm font-semibold text-gray-700 mb-2">
-                Assessment Description
-              </label>
-              <Textarea rows="4" name="desc" :readonly="true" v-model="assessment.desc" placeholder="Description of assessment" class="w-full"/>
+      <div class="overflow-auto">
+        <div class="bg-white rounded-xl border border-gray-200 m-3 p-6">
+          <div class="flex gap-8 w-full mb-4">
+            <div class="flex flex-row gap-2 w-full">
+              <div class="flex flex-col gap-2 w-1/3">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Assessment Name
+                </label>
+                <InputText name="name" :readonly="true" v-model="assessment.name" placeholder="Name of assessment" class="w-full"/>
+              </div>
+              <div class="flex flex-col gap-2 w-2/3">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Assessment Description
+                </label>
+                <Textarea rows="4" name="desc" :readonly="true" v-model="assessment.desc" placeholder="Description of assessment" class="w-full"/>
+              </div>
             </div>
           </div>
+          <div class="text-md font-bold p-4 bg-gray-100 rounded-md mb-4">Skills</div>
+          <div class="flex flex-wrap">
+            <Chip class="float-start m-1 text-sm" :label="skill" rounded v-for="skill in assessment.skills" :key="skill"></Chip>
+          </div>
         </div>
-        <div class="text-md font-bold p-4 bg-gray-100 rounded-md mb-4">Skills</div>
-        <div class="flex flex-wrap" style="max-height: 120px; overflow-y: auto;">
-          <Chip class="float-start m-1 text-sm" style="background-color: #41b883;color:white;padding-block:unset" :label="skill" rounded v-for="skill in assessment.skills" :key="skill"></Chip>
+        <div class="p-4">
+          <div class="text-md font-bold p-4 bg-gray-100! rounded-md mb-4">Questions</div>
+          <DataTable
+              :value="questions"
+              dataKey="id"
+              size="small"
+              :rowHover="true"
+              :loading="loadingQuestions"
+          >
+            <template #empty> No questions found. </template>
+            <template #loading> Loading question data. Please wait. </template>
+            <Column field="title" header="Title">
+              <template #body="{ data }">
+                <span class="text-sm font-semibold">{{ data.title }}</span>
+              </template>
+            </Column>
+            <Column field="type" header="Type" class="text-nowrap">
+              <template #body="{ data }">
+                <span class="text-sm">{{ data.type }}</span>
+              </template>
+            </Column>
+            <Column field="skill" header="Skill" class="text-nowrap">
+              <template #body="{ data }">
+                <Chip :label="data.skill" rounded class="text-sm" style="background-color: #41b883;color:white;"></Chip>
+              </template>
+            </Column>
+            <Column field="competencyLevel" header="Competency">
+              <template #body="{ data }">
+                <span class="text-sm">{{ data.competencyLevel }}</span>
+              </template>
+            </Column>
+          </DataTable>
         </div>
-      </div>
-      <div class="p-4">
-        <div class="text-md font-bold p-4 bg-gray-100! rounded-md mb-4">Questions</div>
-        <DataTable
-            :value="questions"
-            dataKey="id"
-            size="small"
-            :rowHover="true"
-            :loading="loadingQuestions"
-            scroll-height="400px"
-            :scrollable="true"
-        >
-          <template #empty> No questions found. </template>
-          <template #loading> Loading question data. Please wait. </template>
-          <Column field="title" header="Title">
-            <template #body="{ data }">
-              <span class="text-sm font-semibold">{{ data.title }}</span>
-            </template>
-          </Column>
-          <Column field="type" header="Type" class="text-nowrap">
-            <template #body="{ data }">
-              <span class="text-sm">{{ data.type }}</span>
-            </template>
-          </Column>
-          <Column field="skill" header="Skill" class="text-nowrap">
-            <template #body="{ data }">
-              <Chip :label="data.skill" rounded class="text-sm" style="background-color: #41b883;color:white;"></Chip>
-            </template>
-          </Column>
-          <Column field="competencyLevel" header="Competency">
-            <template #body="{ data }">
-              <span class="text-sm">{{ data.competencyLevel }}</span>
-            </template>
-          </Column>
-        </DataTable>
-      </div>
-      <div class="p-6 flex justify-start">
-        <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
+        <div class="p-6 flex justify-start">
+          <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
+        </div>
       </div>
     </template>
   </Drawer>

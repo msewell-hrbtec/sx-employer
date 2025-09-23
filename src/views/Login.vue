@@ -8,6 +8,7 @@ import {ref} from 'vue'
 
 import Footer from "@/components/shared/Footer.vue"
 import hrbCore from "@/hrbCore"
+import router from "@/router";
 
 const showChallenge = ref(false)
 const challenge = ref("")
@@ -80,7 +81,7 @@ const handleSubmit = (event: any) => {
         hrbCore.putMessage(response.message, false);
       }
       hrbCore.saveState(response.payload);
-      window.location.href = "/";
+      router.push("/")
     }).catch((error) => {
       console.error('Login error:', error);
       hrbCore.putMessage('An error occurred during login. Please try again.', true);

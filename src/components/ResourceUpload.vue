@@ -92,7 +92,7 @@ defineExpose({ addError: addError, clearError: clearError })
 </script>
 <template>
   <div class="flex" :class="error ? 'p-inputtext p-invalid' : ''">
-    <img class="row-span-3" :src="previewImage" :id="'preview-' + props.id" alt="image" v-if="previewImage"/>
+    <img class="row-span-3" :src="previewImage" :id="'preview-' + props.id" alt="image" v-if="previewImage" style="width:200px"/>
     <ul class="p-2">
       <li class="py-1"><Button type="button" size="small" class="w-full" outlined @click="uploadResource" label="Upload" /></li>
       <li class="py-1"><Button type="button" size="small" class="w-full" outlined @click="deleteResource" label="Remove" severity="danger" v-if="showResourceRemove"/></li>

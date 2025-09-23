@@ -66,6 +66,8 @@ const loadCandidates = (event?: any) => {
     sortField = "ar_score"
   } else if (sortField === "applied") {
     sortField = "uj_created"
+  } else if (sortField === "status") {
+    sortField = "uj_candidate_status"
   }
   candidatePagingInfo.value.order = sortField + " " + sortOrder
   hrbCore.getCandidatesByEmployerIdAndCompetencyLevelAndJobWithPaging(searchCompetencyLevel.value ? searchCompetencyLevel.value : "", searchJobTitle.value ? searchJobTitle.value : "", candidatePagingInfo.value).then((response) => {
@@ -234,7 +236,7 @@ const viewResults = (arid: any) => {
       </Column>
       <Column field="payscale" header="Pay Scale">
         <template #body="{ data }">
-          <span class="text-sm">{{ data?.result ? (data?.result?.salaryLower ? utils.formatCurrency(data?.result?.salaryUpper) + " - " + utils.formatCurrency(data?.result?.salaryUpper) : '') : ''}}</span>
+          <span class="text-sm">{{ data?.result ? (data?.result?.salaryLower ? utils.formatCurrency(data?.result?.salaryLower) + " - " + utils.formatCurrency(data?.result?.salaryUpper) : '') : utils.formatCurrency(data?.job?.salaryUpper)}}</span>
         </template>
       </Column>
       <Column :sortable="true" field="competency" header="Competency">
@@ -261,69 +263,71 @@ const viewResults = (arid: any) => {
           <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
         </div>
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
-        <div class="flex flex-row gap-4">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-            <InputText :readonly="true" :value="candidate.firstName" placeholder="First Name of candidate" class="w-full"/>
+      <div class="overflow-auto">
+        <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
+          <div class="flex flex-row gap-4">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
+              <InputText :readonly="true" :value="candidate.firstName" placeholder="First Name of candidate" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
+              <InputText :readonly="true" :value="candidate.lastName" placeholder="Last Name of candidate" class="w-full"/>
+            </div>
           </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-            <InputText :readonly="true" :value="candidate.lastName" placeholder="Last Name of candidate" class="w-full"/>
+          <div class="flex flex-row gap-4 mt-4">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">City</label>
+              <InputText :readonly="true" :value="candidate.city" placeholder="Address City of candidate" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-xs">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">State</label>
+              <InputText :readonly="true" :value="candidate.state" placeholder="Address State of candidate" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-xs">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Postal</label>
+              <InputText :readonly="true" :value="candidate.postal" placeholder="Address Postal of candidate" class="w-full"/>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-row gap-4 mt-4">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">City</label>
-            <InputText :readonly="true" :value="candidate.city" placeholder="Address City of candidate" class="w-full"/>
+          <div class="flex flex-row gap-4 mt-4">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+              <InputText :readonly="true" :value="candidate.email" placeholder="Email of candidate" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
+              <PhoneNumberInput :readonly="true" v-model="candidate.phone" placeholder="Phone of candidate" class="w-full" name="phone"/>
+            </div>
           </div>
-          <div class="flex-col gap-4 w-xs">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">State</label>
-            <InputText :readonly="true" :value="candidate.state" placeholder="Address State of candidate" class="w-full"/>
+          <div class="space-y-6 mt-4" v-if="additionalQuestions.length > 0">
+            <div class="text-md font-bold p-4 bg-gray-100 rounded-md">Additional Information</div>
+            <template v-for="question in additionalQuestions" :key="question.label">
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  {{question.label}}
+                </label>
+                <InputText :readonly="true" :value="question.value" placeholder="Answer" class="w-full"/>
+              </div>
+            </template>
           </div>
-          <div class="flex-col gap-4 w-xs">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Postal</label>
-            <InputText :readonly="true" :value="candidate.postal" placeholder="Address Postal of candidate" class="w-full"/>
-          </div>
-        </div>
-        <div class="flex flex-row gap-4 mt-4">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-            <InputText :readonly="true" :value="candidate.email" placeholder="Email of candidate" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-            <PhoneNumberInput :readonly="true" v-model="candidate.phone" placeholder="Phone of candidate" class="w-full"/>
-          </div>
-        </div>
-        <div class="space-y-6 mt-4" v-if="additionalQuestions.length > 0">
-          <div class="text-md font-bold p-4 bg-gray-100 rounded-md">Additional Information</div>
-          <template v-for="question in additionalQuestions" :key="question.label">
+          <div class="space-y-6 mt-4">
+            <div class="text-md font-bold p-4 bg-gray-100 rounded-md">Email Communication</div>
+            <p class="text-sm text-gray-500 mt-1">If you would like to send an email to this candidate, fill out the following information.</p>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">
-                {{question.label}}
+                Subject
               </label>
-              <InputText :readonly="true" :value="question.value" placeholder="Answer" class="w-full"/>
+              <InputText v-model="subject" placeholder="Enter a subject" class="w-full"/>
             </div>
-          </template>
-        </div>
-        <div class="space-y-6 mt-4">
-          <div class="text-md font-bold p-4 bg-gray-100 rounded-md">Email Communication</div>
-          <p class="text-sm text-gray-500 mt-1">If you would like to send an email to this candidate, fill out the following information.</p>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Subject
-            </label>
-            <InputText v-model="subject" placeholder="Enter a subject" class="w-full"/>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Message
-            </label>
-            <Textarea v-model="message" placeholder="Message" class="w-full"/>
-          </div>
-          <div class="p-6 flex justify-end">
-            <Button type="button" @click="sendCandidateEmail()" label="Send" />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                Message
+              </label>
+              <Textarea v-model="message" placeholder="Message" class="w-full"/>
+            </div>
+            <div class="p-6 flex justify-end">
+              <Button type="button" @click="sendCandidateEmail()" label="Send" />
+            </div>
           </div>
         </div>
       </div>
@@ -335,101 +339,101 @@ const viewResults = (arid: any) => {
         <span class="font-medium">Assessment Result</span>
         <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
       </div>
-      <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
-        <div class="flex flex-row gap-4 mb-2">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Name</label>
-            <InputText :readonly="true" :value="assessmentResult.assessmentName" class="w-full"/>
+      <div class="overflow-auto">
+        <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
+          <div class="flex flex-row gap-4 mb-2">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Assessment Name</label>
+              <InputText :readonly="true" :value="assessmentResult.assessmentName" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+              <InputText :readonly="true" :value="assessmentResult.status" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Score</label>
+              <InputText :readonly="true" :value="assessmentResult.score" class="w-full"/>
+            </div>
           </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-            <InputText :readonly="true" :value="assessmentResult.status" class="w-full"/>
+          <div class="flex flex-row gap-4 mb-2">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Start</label>
+              <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.started)" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Completed</label>
+              <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.completed)" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Duration</label>
+              <InputText :readonly="true" :value="utils.inMinutes(assessmentResult.duration)" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Progress</label>
+              <InputText :readonly="true" :value="assessmentResult.progress" class="w-full"/>
+            </div>
           </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Score</label>
-            <InputText :readonly="true" :value="assessmentResult.score" class="w-full"/>
+          <div class="flex flex-row gap-4 mb-2">
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Competency</label>
+              <InputText :readonly="true" :value="assessmentResult.competencyLevelName" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Lower</label>
+              <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryLower)" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Upper</label>
+              <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryUpper)" class="w-full"/>
+            </div>
+            <div class="flex-col gap-4 w-full">
+              <label class="block text-sm font-semibold text-gray-700 mb-2">National Avg</label>
+              <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.nationalAverage)" class="w-full"/>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-row gap-4 mb-2">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Start</label>
-            <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.started)" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Completed</label>
-            <InputText :readonly="true" :value="utils.formatDateTime(assessmentResult.completed)" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Duration</label>
-            <InputText :readonly="true" :value="utils.inMinutes(assessmentResult.duration)" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Progress</label>
-            <InputText :readonly="true" :value="assessmentResult.progress" class="w-full"/>
-          </div>
-        </div>
-        <div class="flex flex-row gap-4 mb-2">
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Competency</label>
-            <InputText :readonly="true" :value="assessmentResult.competencyLevelName" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Lower</label>
-            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryLower)" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Salary Upper</label>
-            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.salaryUpper)" class="w-full"/>
-          </div>
-          <div class="flex-col gap-4 w-full">
-            <label class="block text-sm font-semibold text-gray-700 mb-2">National Avg</label>
-            <InputText :readonly="true" :value="utils.formatCurrency(assessmentResult.nationalAverage)" class="w-full"/>
-          </div>
-        </div>
-        <DataTable
-            :value="assessmentResult.details"
-            dataKey="id"
-            size="small"
-            :rowHover="true"
-            :loading="loadingDetailResults"
-            scroll-height="500px"
-            :scrollable="true"
-        >
+          <DataTable
+              :value="assessmentResult.details"
+              dataKey="id"
+              size="small"
+              :rowHover="true"
+              :loading="loadingDetailResults"
+          >
 
-          <Column field="questionTitle" header="Question">
-            <template #body="{ data }">
-              <span class="text-sm font-semibold">{{ data.questionTitle }}</span>
-            </template>
-          </Column>
-          <Column field="answer" header="Answer">
-            <template #body="{ data }">
-              <span class="text-sm">{{ data.answer }}</span>
-            </template>
-          </Column>
-          <Column field="skill" header="Skill">
-            <template #body="{ data }">
-              <Chip :label="data.questionSkill" rounded class="text-sm" style="background-color: #41b883;color:white;"></Chip>
-            </template>
-          </Column>
-          <Column field="updated" header="Time">
-            <template #body="{ data }">
-              <span class="text-sm">{{ utils.formatDateTime(data.updated) }}</span>
-            </template>
-          </Column>
-          <Column field="pass" header="Pass">
-            <template #body="{ data }">
-              <i class="pi" :class="data.pass ? 'pi-check text-green-600' : 'pi-times text-red-600'"></i>
-            </template>
-          </Column>
-          <Column field="duration" header="Duration">
-            <template #body="{ data }">
-              <span class="text-sm">{{ utils.inMinutes(data.duration) }}</span>
-            </template>
-          </Column>
-        </DataTable>
-      </div>
-      <div class="p-6 flex justify-start">
-        <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
+            <Column field="questionTitle" header="Question">
+              <template #body="{ data }">
+                <span class="text-sm font-semibold">{{ data.questionTitle }}</span>
+              </template>
+            </Column>
+            <Column field="answer" header="Answer">
+              <template #body="{ data }">
+                <span class="text-sm">{{ data.answer }}</span>
+              </template>
+            </Column>
+            <Column field="skill" header="Skill">
+              <template #body="{ data }">
+                <Chip :label="data.questionSkill" rounded class="text-sm" style="background-color: #41b883;color:white;"></Chip>
+              </template>
+            </Column>
+            <Column field="updated" header="Time">
+              <template #body="{ data }">
+                <span class="text-sm">{{ utils.formatDateTime(data.updated) }}</span>
+              </template>
+            </Column>
+            <Column field="pass" header="Pass">
+              <template #body="{ data }">
+                <i class="pi" :class="data.pass ? 'pi-check text-green-600' : 'pi-times text-red-600'"></i>
+              </template>
+            </Column>
+            <Column field="duration" header="Duration">
+              <template #body="{ data }">
+                <span class="text-sm">{{ utils.inMinutes(data.duration) }}</span>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
+        <div class="p-6 flex justify-start">
+          <Button @click="closeCallback" severity="secondary" type="button" label="Close" />
+        </div>
       </div>
     </template>
   </Drawer>

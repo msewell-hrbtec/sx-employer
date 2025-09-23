@@ -60,10 +60,7 @@ export default {
                 this.setUser(obj.user)
             }
             if (obj && obj.employer) {
-                state.employer.id = obj.employer.id
-                state.employer.name = obj.employer.name
-                state.employer.image = obj.employer.image
-                state.employer.jobTargetEnabled = obj.employer.jobTargetEnabled
+                this.setEmployer(obj.employer)
             }
             if (obj && obj.domain) {
                 this.setDomain(obj.domain)
@@ -76,12 +73,13 @@ export default {
                 this.setDomain(response)
                 this.favicon()
                 this.title()
-            } else {
-                // not recognized, must use our saved value
-                if (!state?.domain?.route) {
-                    window.location.href = "/careerpilotjobs"
-                }
             }
+                // //else {
+            //     // not recognized, must use our saved value
+            //     if (!state?.domain?.route) {
+            //         window.location.href = "/careerpilotjobs"
+            //     }
+            // }
         });
         // only if we have an employer
         if (state.employer.id) {
@@ -93,6 +91,10 @@ export default {
                 empState.totalViewsMonth = response.payload.totalViewsMonth
             })
         }
+    },
+    setFavicon(favicon: string) {
+        state.domain.favicon = favicon
+        this.favicon()
     },
     favicon() {
         const link = document.getElementById("favicon")
@@ -133,6 +135,14 @@ export default {
         state.user.lastName = user.lastName || ""
         state.user.image = user.image || ""
     },
+    setEmployer(employer: any) {
+        if (!employer) return;
+        state.employer.id = employer.id || ""
+        state.employer.name = employer.name || ""
+        state.employer.image = employer.thumbnail || employer.image || ""
+        state.employer.jobTargetEnabled = employer.jobTargetEnabled || false
+        this.saveState()
+    },
     getUser() {
         return state.user
     },
@@ -158,33 +168,18 @@ export default {
         }
     },
     logout() {
-        state.user.token = "";
-        this.saveState()
-        window.location.href = "/login"
+        const route = state.domain.route
+        localStorage.removeItem(this.APP_KEY)
+        window.location.href = `/${route}/login`
     },
     setToast(toast: any) {
         globalToast = toast;
     },
     saveState(obj?: any) {
         if (obj) {
-            state.user.id = obj.id
-            state.user.token = obj.token
-            state.user.email = obj.email
-            state.user.firstName = obj.firstName
-            state.user.lastName = obj.lastName
-            state.user.image = obj.image
-            state.domain.id = obj.domain.id
-            state.domain.name = obj.domain.name
-            state.domain.key = obj.domain.key
-            state.domain.image = obj.domain.image
-            state.domain.favicon = obj.domain.favicon
-            state.domain.appPageTitle = obj.domain.appPageTitle
-            state.domain.url = obj.domain.url
-            state.domain.desc = obj.domain.desc
-            state.employer.id = obj.employer.id
-            state.employer.name = obj.employer.name
-            state.employer.image = obj.employer.image
-            state.employer.jobTargetEnabled = obj.employer.jobTargetEnabled
+            this.setUser(obj)
+            this.setEmployer(obj.employer)
+            this.setDomain(obj.domain)
         }
         localStorage.setItem(this.APP_KEY, JSON.stringify(state));
     },
@@ -212,6 +207,14 @@ export default {
     async getJobById(id: string) {
         return get(`sxe/job-by-id?id=${encodeURIComponent(id)}`)
     },
+    async register(employer: any) {
+        const formData = new FormData()
+        formData.append("image", employer.image)
+        formData.append("payload", JSON.stringify(employer))
+        return post(`public/register-employer`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+    },
     async getTeam() {
         return get(`sxe/team`)
     },
@@ -221,8 +224,8 @@ export default {
     async getPublishedJobsByEmployerId() {
         return get(`sxe/all-jobs-by-employer`)
     },
-    async getJobsByEmployerIdAndStatusWithPaging(status: string, pagingInfo: PagingInfo) {
-        return post(`sxe/jobs-by-employer?status=${status}`, pagingInfo)
+    async getJobsByEmployerIdAndStateAndStatusWithPaging(state: string, status: string, pagingInfo: PagingInfo) {
+        return post(`sxe/jobs-by-employer?status=${status}&state=${state}`, pagingInfo)
     },
     async getCandidatesByJobId(jobId: string, pagingInfo: PagingInfo) {
         return post(`sxe/candidates-by-job?jid=${encodeURIComponent(jobId)}`, pagingInfo)
@@ -255,9 +258,7 @@ export default {
         return post(`sxe/jobs-by-candidate?archived=${archived}`, pagingInfo);
     },
     async changeEmployer(emp: any) {
-        state.employer.id = emp.id
-        state.employer.name = emp.name
-        state.employer.image = emp.image
+        this.setEmployer(emp)
         this.saveState()
         return post(`sxe/change-employer`, emp)
     },
@@ -286,7 +287,7 @@ export default {
         return post(`sxe/archive-user-resources`, resources)
     },
     async getEmployerStats() {
-        return get(`public/employer-stats`)
+        return get(`sxe/employer-stats`)
     },
     async updateEmployer(employer: any) {
         const formData = new FormData()
@@ -309,9 +310,6 @@ export default {
         formData.append("payload", JSON.stringify(payload))
         return post("sxe/user-resources", formData, { headers: { "Content-Type": "multipart/form-data" } })
     },
-    async updateJobField(jobId: string, field: string, value: any, add?: boolean) {
-        return post(`sxe/update-job-field?jid=${encodeURIComponent(jobId)}&field=${encodeURIComponent(field)}&value=${encodeURIComponent(value)}&add=${add}`, {})
-    }
 }
 
 async function get(url: string) {
