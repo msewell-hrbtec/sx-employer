@@ -1,15 +1,16 @@
 <script setup lang="ts">
 
-import {onMounted, ref} from "vue"
+import {ref} from "vue"
 import hrbCore from "@/hrbCore.ts"
 import {Form} from "@primevue/forms"
 import Message from "primevue/message"
 import InputText from "primevue/inputtext"
 import PhoneNumberInput from "@/components/PhoneNumberInput.vue"
 import Select from "primevue/select"
-import Button from "primevue/button";
-import router from "@/router";
-import ResourceUpload from "@/components/ResourceUpload.vue";
+import Button from "primevue/button"
+import router from "@/router"
+import ResourceUpload from "@/components/ResourceUpload.vue"
+import Footer from "@/components/shared/Footer.vue"
 
 const plans = ref([
   "15 Day Trial", "Basic Plan", "Pro Plan", "Enterprise Plan"
@@ -70,27 +71,23 @@ const handleSubmit = (event: any) => {
   if (event.valid) {
     loading.value = true
     employer.value.did = hrbCore.getDomain().id
-    hrbCore.register(employer.value).then((response) => {
+    hrbCore.registerEmployer(employer.value).then((response: any) => {
       loading.value = false
       if (response.success) {
         hrbCore.putMessage('Registration successful', false)
         hrbCore.saveState(response.payload)
-        router.push("/")
+        router.push(`/${hrbCore.getDomain().route}/login?action=register`)
       } else {
         hrbCore.putMessage(response.message, true)
       }
     })
   }
 }
-
-onMounted(() => {
-  hrbCore.setFavicon("https://static.skillxchange.io/images/employer/careerpilot-favicon.png")
-})
 </script>
 
 <template>
-  <div class="bg-surface-50 dark:bg-surface-950 py-20 md:px-12 lg:px-12" style="background-image: url('https://static.skillxchange.io/images/employer/Register_Background.png');background-size: cover;">
-    <div class="bg-surface-0 dark:bg-surface-900 p-8 md:p-12 rounded-2xl w-full max-w-2xl mx-auto flex flex-col">
+  <div class="bg-surface-50 py-20 md:px-12 lg:px-12" style="background-image: url('https://static.skillxchange.io/images/employer/Register_Background.png');background-size: cover;">
+    <div class="bg-surface-0 p-8 md:p-12 rounded-2xl w-full max-w-2xl mx-auto flex flex-col">
       <div class="flex flex-col items-center gap-4">
         <img :src="hrbCore.getDomain()?.image" :alt="hrbCore.getDomain()?.name" />
       </div>
@@ -133,7 +130,8 @@ onMounted(() => {
             <Message v-if="$form.size?.invalid" severity="error" size="small" variant="simple">{{ $form.size.error.message }}</Message>
           </div>
           <div class="flex flex-col gap-2">
-            <ResourceUpload v-model="employer.image" name="image" class="w-full" accept="" id="image"/>
+            <label for="image">Upload Your Employer Logo Here</label>
+            <ResourceUpload v-model="employer.image" name="image" class="w-full" accept="" id="image" image-placeholder=""/>
           </div>
           <div class="flex flex-col gap-2">
             <Select v-model="employer.plan" name="plan" :options="plans" placeholder="Choose a Plan" class="w-full"/>
@@ -145,6 +143,7 @@ onMounted(() => {
           </div>
         </div>
       </Form>
+      <Footer class="mt-10"/>
     </div>
   </div>
 </template>

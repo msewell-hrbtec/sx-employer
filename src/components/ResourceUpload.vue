@@ -23,10 +23,14 @@ const props = defineProps({
   name: {
     type: String,
     required: true,
-  }
+  },
+  imagePlaceholder: {
+    type: String,
+    default: PREVIEW_IMAGE,
+  },
 })
 let selectedFile = null
-const previewImage: any = ref(PREVIEW_IMAGE)
+const previewImage: any = ref(props.imagePlaceholder)
 const emit = defineEmits(["select", "update:modelValue"])
 const onResourceSelectedFiles = (event: any) => {
   clearError()
@@ -62,7 +66,7 @@ const onResourceChanged = () => {
       previewImage.value = props.modelValue
     }
   } else {
-    previewImage.src = PREVIEW_IMAGE
+    previewImage.src = props.imagePlaceholder
   }
 
 };

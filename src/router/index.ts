@@ -3,7 +3,8 @@ import {createRouter, createWebHistory} from "vue-router"
 import hrbCore from "@/hrbCore.ts"
 import MainLayout from "@/layout/MainLayout.vue"
 import Dashboard from "@/views/Dashboard.vue"
-import Register from "@/views/Register.vue"
+import RegisterEmployer from "@/views/RegisterEmployer.vue"
+import InviteEmployer from "@/views/InviteEmployer.vue"
 import Candidates from "@/views/Candidates.vue"
 import Assessment from "@/views/Assessment.vue"
 import Job from "@/views/Job.vue"
@@ -21,8 +22,11 @@ const routes = [
         component: Login,
     },
     {
-        path: '/:domainRoute?/register',
-        component: Register,
+        path: '/:domainRoute?/register-employer',
+        component: RegisterEmployer,
+    },{
+        path: '/:domainRoute?/invite-employer',
+        component: InviteEmployer,
     },{
         path: '/:domainRoute?',
         component: MainLayout,
@@ -53,7 +57,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to: any, _from: any, next: any) => {
-    if (to.path.indexOf('/login') !== -1 || to.path.indexOf('/register') !== -1) {
+    if (to.path.indexOf('/login') !== -1 || to.path.indexOf('/register-employer') !== -1 || to.path.indexOf('/invite-employer') !== -1) {
         next();
     } else {
         const stateStr = localStorage.getItem(hrbCore.APP_KEY)
@@ -62,10 +66,10 @@ router.beforeEach((to: any, _from: any, next: any) => {
             if (state && state.user.token) {
                 next()
             } else {
-                next(`/${to.params.domainRoute}/login`)
+                next(`/${state.domain.route}/login`)
             }
         } else {
-            next(`/${to.params.domainRoute}/login`)
+            next(`/careerpilotjobs/login`)
         }
     }
 });

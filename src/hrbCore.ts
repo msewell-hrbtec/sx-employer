@@ -73,6 +73,7 @@ export default {
                 this.setDomain(response)
                 this.favicon()
                 this.title()
+                this.saveState()
             }
                 // //else {
             //     // not recognized, must use our saved value
@@ -130,6 +131,7 @@ export default {
     setUser(user: any) {
         if (!user) return;
         state.user.id = user.id || ""
+        state.user.email = user.email || ""
         state.user.token = user.token || ""
         state.user.firstName = user.firstName || ""
         state.user.lastName = user.lastName || ""
@@ -141,7 +143,6 @@ export default {
         state.employer.name = employer.name || ""
         state.employer.image = employer.thumbnail || employer.image || ""
         state.employer.jobTargetEnabled = employer.jobTargetEnabled || false
-        this.saveState()
     },
     getUser() {
         return state.user
@@ -153,7 +154,9 @@ export default {
         const link = document.getElementById("title")
         if (link) {
             const head = document.head || document.getElementsByTagName('head')[0];
-            head.removeChild(link)
+            if (head.contains(link)) {
+                head.removeChild(link)
+            }
             const newlink: any = document.createElement("title")
             newlink.innerHTML = state.domain.appPageTitle || state.domain.name
             newlink.id = "title"
@@ -207,13 +210,16 @@ export default {
     async getJobById(id: string) {
         return get(`sxe/job-by-id?id=${encodeURIComponent(id)}`)
     },
-    async register(employer: any) {
+    async registerEmployer(employer: any) {
         const formData = new FormData()
         formData.append("image", employer.image)
         formData.append("payload", JSON.stringify(employer))
         return post(`public/register-employer`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         })
+    },
+    async inviteEmployer(employer: any) {
+        return post(`public/invite-employer`, employer)
     },
     async getTeam() {
         return get(`sxe/team`)
@@ -238,6 +244,9 @@ export default {
     },
     async jobTarget(id: string) {
         return post(`sxe/job-target?jobId=${id}`, {})
+    },
+    async getEmployerById(eid: string) {
+        return get(`public/employer-by-id?eid=${encodeURIComponent(eid)}`)
     },
     async getJobCategories() {
         return get(`sxe/job-categories`)

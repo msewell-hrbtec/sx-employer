@@ -4,12 +4,14 @@ import InputText from 'primevue/inputtext'
 import Message from 'primevue/message'
 import Button from 'primevue/button'
 import Select from 'primevue/select'
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
 
 import Footer from "@/components/shared/Footer.vue"
 import hrbCore from "@/hrbCore"
-import router from "@/router";
+import router from "@/router"
+import {useRoute} from "vue-router";
 
+const route = useRoute()
 const showChallenge = ref(false)
 const challenge = ref("")
 const employers = ref([])
@@ -17,20 +19,13 @@ const employer = ref("")
 const email = ref("")
 const showViewSelection = ref(false)
 
-// Form initial values
-const initialValues = {
-  email: '',
-  challenge: '',
-  employer: ''
-};
-
 // Simple resolver for basic validation
 const resolver = (values: any) => {
   const errors: any = {};
 
-  if (!values.values.email) {
+  if (!email.value) {
     errors.email = [{ message: 'Email is required' }];
-  } else if (!/\S+@\S+\.\S+/.test(values.values.email)) {
+  } else if (!/\S+@\S+\.\S+/.test(email.value)) {
     errors.email = [{ message: 'Email is invalid' }];
   }
 
@@ -38,7 +33,7 @@ const resolver = (values: any) => {
     errors.challenge = [{ message: 'Challenge is required' }];
   }
 
-  if (!values.values.employer) {
+  if (!employer.value) {
     errors.employer = [{ message: 'Employer is required' }];
   }
 
@@ -88,11 +83,22 @@ const handleSubmit = (event: any) => {
     });
   }
 };
+onMounted(() => {
+  getUrlQueryParams()
+})
 
+const getUrlQueryParams = async () => {
+  await router.isReady()
+  if (route.query.action === "register") {
+    employer.value = hrbCore.getEmployer().id
+    email.value = hrbCore.getUser().email
+    showChallenge.value = true;
+  }
+}
 </script>
 
 <template>
-  <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" @submit="handleSubmit" class="flex flex-col gap-4 w-full">
+  <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit" class="flex flex-col gap-4 w-full">
     <div class="bg-surface-50 dark:bg-surface-950 px-6 py-20 md:px-12 lg:px-20">
       <div class="bg-surface-0 dark:bg-surface-900 p-8 md:p-12 shadow-sm rounded-2xl w-full max-w-xl mx-auto flex flex-col gap-8">
         <div class="flex flex-col items-center gap-4">
@@ -118,7 +124,7 @@ const handleSubmit = (event: any) => {
           </div>
         </div>
         <div class="flex flex-col w-full" v-if="showChallenge">
-          <p class="text-surface-900 dark:text-surface-0 font-normal leading-normal p-3">Please check your email for a challenge code.</p>
+          <p class="dark:text-surface-0 font-normal leading-normal p-3 text-red-600">Please check your email for a challenge code.</p>
           <div class="flex flex-col gap-2 w-full pt-2">
             <label for="challenge" class="text-surface-900 dark:text-surface-0 font-medium leading-normal">Challenge Code</label>
             <div class="flex flex-wrap gap-4">
