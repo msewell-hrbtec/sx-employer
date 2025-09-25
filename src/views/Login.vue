@@ -56,7 +56,7 @@ const sendChallenge = () => {
       hrbCore.putMessage(response.message, false);
     }
     showChallenge.value = true;
-    if (response.payload.employers) {
+    if (!response.payload.superAdmin && response.payload.employers) {
       employers.value = response.payload.employers;
       showViewSelection.value = true;
     }
@@ -93,11 +93,11 @@ const handleSubmit = (event: any) => {
 
 <template>
   <Form v-slot="$form" :initialValues="initialValues" :resolver="resolver" @submit="handleSubmit" class="flex flex-col gap-4 w-full">
-    <div class="bg-surface-50 dark:bg-surface-950 px-6 py-20 md:px-12 lg:px-20">
-      <div class="bg-surface-0 dark:bg-surface-900 p-8 md:p-12 shadow-sm rounded-2xl w-full max-w-xl mx-auto flex flex-col gap-8">
+    <div class="bg-surface-50 px-6 py-20 md:px-12 lg:px-20">
+      <div class="bg-surface-0 p-8 md:p-12 shadow-sm rounded-2xl w-full max-w-xl mx-auto flex flex-col gap-8">
         <div class="flex flex-col items-center gap-4">
           <div class="flex items-center gap-4">
-            <img :src="hrbCore.getDomain()?.image" :alt="hrbCore.getDomain()?.name" />
+            <img src="https://static.skillxchange.io/images/employer/careerpilotjobs.png" alt="Career Pilot" />
           </div>
           <div class="flex flex-col items-center gap-2 w-full">
             <div class="text-surface-900 dark:text-surface-0 text-2xl font-semibold leading-tight text-center w-full">Welcome Back</div>

@@ -10,21 +10,14 @@ import Job from "@/views/Job.vue"
 
 const routes = [
     {
-        path: '/',
-        redirect: () => {
-            const domainRoute = hrbCore.getDomain()?.route || 'careerpilotjobs'
-            return `/${domainRoute}`
-        }
-    },
-    {
-        path: '/:domainRoute?/login',
+        path: '/login',
         component: Login,
     },
     {
-        path: '/:domainRoute?/register',
+        path: '/register',
         component: Register,
     },{
-        path: '/:domainRoute?',
+        path: '/',
         component: MainLayout,
         children: [
             {
@@ -62,10 +55,10 @@ router.beforeEach((to: any, _from: any, next: any) => {
             if (state && state.user.token) {
                 next()
             } else {
-                next(`/${to.params.domainRoute}/login`)
+                next(`/login`)
             }
         } else {
-            next(`/${to.params.domainRoute}/login`)
+            next(`/login`)
         }
     }
 });

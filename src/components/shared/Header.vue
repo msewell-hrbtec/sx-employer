@@ -15,6 +15,7 @@ import Checkbox from "primevue/checkbox"
 import ConfirmPopup from "primevue/confirmpopup"
 import InputText from "primevue/inputtext"
 import Select from "primevue/select"
+import Menubar from "primevue/menubar"
 
 const buttonClass = 'w-full px-3 py-2 rounded-lg  flex items-center gap-2 font-medium text-surface-500 hover:text-surface-950 dark:hover:text-surface-0 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors duration-150'
 const openTeamList = ref(false)
@@ -157,7 +158,37 @@ const changeEmployer = () => {
       break
     }
   }
-};
+}
+const menuItems = ref([
+  {
+    label: 'Admin',
+    icon: 'pi pi-fw pi-table',
+    items: [
+      {
+        label: 'Employers',
+        icon: 'pi pi-fw pi-building',
+      }, {
+        label: 'Feeds',
+        icon: 'pi pi-fw pi-globe',
+      }, {
+        label: 'Job Categories',
+        icon: 'pi pi-fw pi-address-book'
+      }, {
+        label: 'Job Industries',
+        icon: 'pi pi-fw pi-warehouse'
+      }, {
+        label: 'Prompt Templates',
+        icon: 'pi pi-fw pi-microchip-ai'
+      }, {
+        label: 'Templates',
+        icon: 'pi pi-fw pi-clipboard'
+      }, {
+        label: 'Users',
+        icon: 'pi pi-fw pi-users'
+      },
+    ]
+  }])
+
 onMounted(() => {
   const targetElement = document.getElementById('profile-dropdown')
   document.addEventListener('click', function(event: any) {
@@ -190,7 +221,8 @@ onMounted(() => {
   <header class="md:max-h-16 py-4 pr-4 flex md:flex-row flex-col items-center justify-between gap-3">
     <div class="flex items-center md:flex-1 gap-2">
       <RouterLink to="/">
-        <img :src="hrbCore.getEmployer().image" class="mx-8" alt="Logo" style="width: 150px"/>
+        <img :src="hrbCore.getEmployer().image" class="mx-8" alt="Logo" style="width: 150px" v-if="hrbCore.getEmployer().image">
+        <span v-else>{{hrbCore.getEmployer().name}}</span>
       </RouterLink>
       <RouterLink to="/">
         <div class="flex flex-row items-center gap-2">
@@ -232,7 +264,8 @@ onMounted(() => {
 
     <div class="flex items-center md:flex-row flex-col gap-4">
       <div class="flex gap-4">
-        <Select name="employer" v-model="currentEmployer" :options="employers" optionLabel="name" optionValue="id" placeholder="Select One" class="w-full" @change="changeEmployer"/>
+        <Menubar :model="menuItems" v-if="hrbCore.getUser().superAdmin"/>
+        <Select name="employer" v-model="currentEmployer" :options="employers" optionLabel="name" optionValue="id" placeholder="Select One" class="w-full" @change="changeEmployer" v-if="employers.length > 1"/>
         <button type="button" @click="openSettingsMenu = !openSettingsMenu" class="profile-menu " id="profile-dropdown">
           <i class="pi pi-cog"></i>
         </button>

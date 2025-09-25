@@ -93,7 +93,7 @@ const editJob = (job: any) => {
   openJobDialog.value = true
 }
 const shareJob = (job: any) => {
-  shareUrl.value = `https://careerpilot.skillxchange.io/${hrbCore.getDomain().route}/jobs/${job.id}`
+  shareUrl.value = `https://careerpilot.skillxchange.io/jobs/${job.id}`
   setTimeout(function () {
     const e = document.getElementById("shareUrl") as HTMLInputElement;
     e.select();
@@ -164,11 +164,13 @@ onMounted(() => {
   loadJobs()
   StatusArray.value = Object.values(PublishStatus)
   StatusArray.value.unshift({label: "All Statuses", value: "", color: ""})
-  hrbCore.getEmployerProfile().then((response: any) => {
-    if (response.success) {
-      employer.value = response.payload
-    }
-  })
+  if (!hrbCore.getUser().superAdmin) {
+    hrbCore.getEmployerProfile().then((response: any) => {
+      if (response.success) {
+        employer.value = response.payload
+      }
+    })
+  }
 })
 </script>
 <template>
@@ -294,7 +296,7 @@ onMounted(() => {
       </template>
     </Column>
   </DataTable>
-  <section id="company-profile" class="mb-8 mt-4">
+  <section id="company-profile" class="mb-8 mt-4" v-if="!hrbCore.getUser().superAdmin">
     <div class="bg-white rounded-xl border border-gray-200 p-8">
       <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8">
         <div>
@@ -316,7 +318,7 @@ onMounted(() => {
               <h4 class="text-2xl font-bold text-gray-900 mb-2">{{employer.name}}</h4>
               <p class="text-gray-600 mb-4">{{employer.desc}}</p>
               <div class="flex flex-wrap gap-4 text-sm text-gray-600">
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2" v-if="employer.city && employer.state">
                   <i class="text-gray-400" data-fa-i2svg=""><svg class="svg-inline--fa fa-location-dot" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="location-dot" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"></path></svg></i>
                   <span>{{employer.city + ", " + employer.state}}</span>
                 </div>

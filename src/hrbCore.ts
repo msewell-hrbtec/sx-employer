@@ -12,23 +12,14 @@ const state = reactive({
         firstName: "",
         lastName: "",
         image: "",
-    },
-    domain: {
-        id: "",
-        name: "",
-        key: "",
-        image: "",
-        favicon: "",
-        route: "",
-        appPageTitle: "",
-        url: "",
-        desc: "",
+        superAdmin: false,
     },
     employer: {
         id: "",
         name: "",
         image: "",
         jobTargetEnabled: false,
+        appPageTitle: "",
     },
 })
 
@@ -62,25 +53,7 @@ export default {
             if (obj && obj.employer) {
                 this.setEmployer(obj.employer)
             }
-            if (obj && obj.domain) {
-                this.setDomain(obj.domain)
-            }
         } catch (Err) {}
-
-        let subdomain = window.location.pathname.split("/")[1]
-        this.getDomainByRoute(subdomain).then((response) => {
-            if (response) {
-                this.setDomain(response)
-                this.favicon()
-                this.title()
-            }
-                // //else {
-            //     // not recognized, must use our saved value
-            //     if (!state?.domain?.route) {
-            //         window.location.href = "/careerpilotjobs"
-            //     }
-            // }
-        });
         // only if we have an employer
         if (state.employer.id) {
             this.getEmployerStats().then((response: any) => {
@@ -92,40 +65,8 @@ export default {
             })
         }
     },
-    setFavicon(favicon: string) {
-        state.domain.favicon = favicon
-        this.favicon()
-    },
-    favicon() {
-        const link = document.getElementById("favicon")
-        if (link && state.domain.favicon) {
-            const head = document.head || document.getElementsByTagName('head')[0];
-            head.removeChild(link)
-            const newlink = document.createElement("link")
-            newlink.rel = "icon"
-            newlink.type = "image/x-icon"
-            newlink.id = "favicon"
-            newlink.href = state.domain.favicon
-            head.appendChild(newlink)
-        }
-    },
     employerStats() {
         return empState;
-    },
-    setDomain(domain: any) {
-        if (!domain) return
-        state.domain.id = domain.id || ""
-        state.domain.name = domain.name || ""
-        state.domain.key = domain.key || ""
-        state.domain.image = domain.image || ""
-        state.domain.favicon = domain.favicon || ""
-        state.domain.route = domain.route || ""
-        state.domain.appPageTitle = domain.appPageTitle || ""
-        state.domain.url = domain.url || ""
-        state.domain.desc = domain.desc || ""
-    },
-    getDomain() {
-        return state.domain;
     },
     setUser(user: any) {
         if (!user) return;
@@ -134,12 +75,13 @@ export default {
         state.user.firstName = user.firstName || ""
         state.user.lastName = user.lastName || ""
         state.user.image = user.image || ""
+        state.user.superAdmin = user.superAdmin || false
     },
     setEmployer(employer: any) {
         if (!employer) return;
         state.employer.id = employer.id || ""
         state.employer.name = employer.name || ""
-        state.employer.image = employer.thumbnail || employer.image || ""
+        state.employer.image = employer.image || employer.image || ""
         state.employer.jobTargetEnabled = employer.jobTargetEnabled || false
         this.saveState()
     },
@@ -155,7 +97,7 @@ export default {
             const head = document.head || document.getElementsByTagName('head')[0];
             head.removeChild(link)
             const newlink: any = document.createElement("title")
-            newlink.innerHTML = state.domain.appPageTitle || state.domain.name
+            newlink.innerHTML = state.employer.appPageTitle || state.employer.name
             newlink.id = "title"
             head.appendChild(newlink)
         }
@@ -168,9 +110,8 @@ export default {
         }
     },
     logout() {
-        const route = state.domain.route
         localStorage.removeItem(this.APP_KEY)
-        window.location.href = `/${route}/login`
+        window.location.href = `/login`
     },
     setToast(toast: any) {
         globalToast = toast;
@@ -179,21 +120,17 @@ export default {
         if (obj) {
             this.setUser(obj)
             this.setEmployer(obj.employer)
-            this.setDomain(obj.domain)
         }
         localStorage.setItem(this.APP_KEY, JSON.stringify(state));
     },
     async sendChallenge(email: string) {
-        return post(`public/challenge?did=${encodeURIComponent(state.domain.id)}&email=${encodeURIComponent(email)}`, {})
+        return post(`public/challenge?email=${encodeURIComponent(email)}`, {})
     },
     async getAssessmentResult(arid: string) {
         return get(`sxe/assessment-result?arid=${encodeURIComponent(arid)}`)
     },
     async login(email: string, code: string, eid: string) {
-        return post(`public/login?did=${encodeURIComponent(state.domain.id)}&email=${encodeURIComponent(email)}&code=${code}&eid=${encodeURIComponent(eid)}`, {})
-    },
-    async getDomainByRoute(route: string) {
-        return get(`public/domain-by-route?route=${route}`)
+        return post(`public/login?email=${encodeURIComponent(email)}&code=${code}&eid=${encodeURIComponent(eid)}`, {})
     },
     async getEmployers() {
         return get(`sxe/employers`)
