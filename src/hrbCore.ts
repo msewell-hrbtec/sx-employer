@@ -167,6 +167,12 @@ export default {
     async getCandidatesByJobId(jobId: string, pagingInfo: PagingInfo) {
         return post(`sxe/candidates-by-job?jid=${encodeURIComponent(jobId)}`, pagingInfo)
     },
+    async updateTemplate(template: any) {
+        return post(`sxe/templates`, template);
+    },
+    async getTemplatesByEmployerIdAndArchivedWithPaging(eid: string, archived: boolean, pagingInfo: PagingInfo) {
+        return post(`sxe/templates-by-employer?eid=${encodeURIComponent(eid)}&archived=${archived}`, pagingInfo)
+    },
     async getCandidatesByAssessmentId(assId: string, pagingInfo: PagingInfo) {
         return post(`sxe/candidates-by-assessment?aid=${encodeURIComponent(assId)}`, pagingInfo)
     },

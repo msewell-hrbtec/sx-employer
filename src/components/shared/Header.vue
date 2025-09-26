@@ -163,28 +163,32 @@ const menuItems = ref([
   {
     label: 'Admin',
     icon: 'pi pi-fw pi-table',
+    role: 'superAdmin',
     items: [
       {
-        label: 'Employers',
-        icon: 'pi pi-fw pi-building',
-      }, {
         label: 'Feeds',
         icon: 'pi pi-fw pi-globe',
+        url: '/feeds'
       }, {
         label: 'Job Categories',
-        icon: 'pi pi-fw pi-address-book'
+        icon: 'pi pi-fw pi-address-book',
+        url: 'job-categories'
       }, {
         label: 'Job Industries',
-        icon: 'pi pi-fw pi-warehouse'
+        icon: 'pi pi-fw pi-warehouse',
+        url: '/job-industries'
       }, {
         label: 'Prompt Templates',
-        icon: 'pi pi-fw pi-microchip-ai'
+        icon: 'pi pi-fw pi-microchip-ai',
+        url: '/prompt-templates'
       }, {
         label: 'Templates',
-        icon: 'pi pi-fw pi-clipboard'
+        icon: 'pi pi-fw pi-clipboard',
+        url: '/templates',
       }, {
         label: 'Users',
-        icon: 'pi pi-fw pi-users'
+        icon: 'pi pi-fw pi-users',
+        url: '/users',
       },
     ]
   }])

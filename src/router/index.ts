@@ -3,19 +3,20 @@ import {createRouter, createWebHistory} from "vue-router"
 import hrbCore from "@/hrbCore.ts"
 import MainLayout from "@/layout/MainLayout.vue"
 import Dashboard from "@/views/Dashboard.vue"
-import Register from "@/views/Register.vue"
 import Candidates from "@/views/Candidates.vue"
 import Assessment from "@/views/Assessment.vue"
 import Job from "@/views/Job.vue"
+import Feed from "@/views/Feed.vue"
+import JobIndustry from "@/views/JobIndustry.vue"
+import JobCategory from "@/views/JobCategory.vue"
+import User from "@/views/User.vue"
+import PromptTemplate from "@/views/PromptTemplate.vue"
+import Template from "@/views/Template.vue"
 
 const routes = [
     {
         path: '/login',
         component: Login,
-    },
-    {
-        path: '/register',
-        component: Register,
     },{
         path: '/',
         component: MainLayout,
@@ -24,14 +25,32 @@ const routes = [
                 path: '',
                 component: Dashboard,
             },{
-                path: 'job',
+                path: '/job',
                 component: Job,
             },{
-                path: 'job-candidates',
+                path: '/job-candidates',
                 component: Candidates,
             },{
-                path: 'assessments',
+                path: '/assessments',
                 component: Assessment
+            },{
+                path: '/templates',
+                component: Template
+            },{
+                path: '/prompt-templates',
+                component: PromptTemplate
+            },{
+                path: '/users',
+                component: User
+            },{
+                path: '/job-industries',
+                component: JobIndustry
+            },{
+                path: '/job-categories',
+                component: JobCategory
+            }, {
+                path: '/feeds',
+                component: Feed
             }
         ]
     },
