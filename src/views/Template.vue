@@ -14,6 +14,7 @@ import Drawer from "primevue/drawer"
 import Button from "primevue/button"
 import InputIcon from "primevue/inputicon"
 import { VAceEditor } from "vue3-ace-editor"
+import Checkbox from "primevue/checkbox"
 
 import "ace-builds/src-noconflict/mode-json"
 import "ace-builds/src-noconflict/mode-html"
@@ -64,16 +65,12 @@ const loadData = (event?: any) => {
       sortField = "t_type"
       break;
     case "update":
-      sortField = "t_update"
+      sortField = "t_updated"
       break;
   }
 
   pagingInfo.value.order = sortField + " " + sortOrder
-  let eid = ""
-  if (searchEmployer.value && ("id" in searchEmployer.value)) {
-    eid = searchEmployer.value.id || ""
-  }
-  hrbCore.getTemplatesByEmployerIdAndArchivedWithPaging(eid, searchArchived.value, pagingInfo.value).then((response: any) => {
+  hrbCore.getTemplatesByEmployerIdAndArchivedWithPaging(searchEmployer.value || "", searchArchived.value, pagingInfo.value).then((response: any) => {
     loading.value = false
     data.value = response.payload.data
     totalRecords.value = response.payload.rowCount
@@ -82,7 +79,7 @@ const loadData = (event?: any) => {
 const editorLang = ref("html")
 const template: any = ref({})
 const employers: any = ref([])
-const searchEmployer: any = ref({})
+const searchEmployer: any = ref("")
 const searchArchived = ref(false)
 const resolver = () => {
   const errors: any = {};
@@ -122,8 +119,28 @@ const handleSubmit = (event: any) => {
       } else {
         hrbCore.putMessage(response.message, true)
       }
-    });
+    })
   }
+}
+
+const archiveRecord = (id: string, archive: boolean) => {
+  hrbCore.archiveTemplate(id, archive).then((response: any) => {
+    if (response.success) {
+      loadData()
+    } else {
+      hrbCore.putMessage(response.message, true)
+    }
+  })
+}
+
+const defaultRecord = (id: string, _default: boolean) => {
+  hrbCore.defaultTemplate(id, _default).then((response: any) => {
+    if (response.success) {
+      loadData()
+    } else {
+      hrbCore.putMessage(response.message, true)
+    }
+  })
 }
 onMounted(() => {
   // make sure we're allowed
@@ -160,21 +177,11 @@ onMounted(() => {
     >
       <template #header>
         <div class="flex justify-end">
-          <Select v-model="searchEmployer" :options="employers" filter optionLabel="name" placeholder="All Employers" class="w-full md:w-56 mr-2" @change="onFilter()" showClear>
-            <template #value="slotProps">
-              <div v-if="slotProps.value" class="flex items-center">
-                <div>{{ slotProps.value.name }}</div>
-              </div>
-              <span v-else>
-                {{ slotProps.placeholder }}
-              </span>
-            </template>
-            <template #option="slotProps">
-              <div class="flex items-center">
-                <div>{{ slotProps.option.name }}</div>
-              </div>
-            </template>
-          </Select>
+          <div class="flex items-center gap-2 mr-2">
+            <Checkbox binary v-model="searchArchived" inputId="search-archived" name="archived" @change="onFilter()"/>
+            <label for="search-archived"> Archived </label>
+          </div>
+          <Select v-model="searchEmployer" :options="employers" filter optionLabel="name" optionValue="id" placeholder="All Employers" class="w-full md:w-56 mr-2" @change="onFilter()" showClear/>
           <IconField>
             <InputIcon>
               <i class="pi pi-search" />
@@ -205,10 +212,30 @@ onMounted(() => {
           <span class="text-sm">{{ utils.formatDateTime(data?.updated) }}</span>
         </template>
       </Column>
-      <Column field="action" header="Action">
+      <Column field="archived" header="Archived" style="text-align: center">
+        <template #body="{ data }">
+          <span class="text-sm">
+            <a href="#" @click="archiveRecord(data.id, !data.archived)" class="text-blue-600">
+              <i class="pi pi-stop" v-if="!data.archived"></i>
+              <i class="pi pi-check" v-else></i>
+            </a>
+          </span>
+        </template>
+      </Column>
+      <Column field="default" header="Default" style="text-align:center" class="text-blue-600">
+        <template #body="{ data }">
+          <span class="text-sm">
+            <a href="#" @click="defaultRecord(data.id, !data._default)">
+              <i class="pi pi-stop" v-if="!data._default"></i>
+              <i class="pi pi-check" v-else></i>
+            </a>
+          </span>
+        </template>
+      </Column>
+      <Column field="action" header="Action" style="text-align: center">
         <template #body="{ data }">
           <div class="flex flex-row">
-            <a @click="editRecord(data.id)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Resume"><i class="pi pi-pencil"></i></a>
+            <a @click="editRecord(data)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Resume"><i class="pi pi-pencil"></i></a>
 <!--            <a @click="viewCandidate(data)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-user-plus"></i></a>-->
 <!--            <a v-if="data.result" @click="viewResults(data.result.id)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-receipt"></i></a>-->
           </div>
@@ -216,7 +243,7 @@ onMounted(() => {
       </Column>
     </DataTable>
   </div>
-  <Drawer :visible="openEditDialog" @update:visible="(value) => openEditDialog = value" header="" position="right" class="!w-full md:!w-80 lg:!w-[40rem]">
+  <Drawer :visible="openEditDialog" @update:visible="(value) => openEditDialog = value" header="" position="right" class="!w-full md:!w-80 lg:!w-[50rem]">
     <template #container="{ closeCallback }">
       <div class="overflow-auto">
         <div class="px-6 py-5 flex items-center justify-between">
@@ -242,21 +269,7 @@ onMounted(() => {
             <div class="flex flex-row gap-4 mt-4">
               <div class="flex-col gap-4 w-full">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Employer</label>
-                <Select v-model="template.employer.id" :options="employers" filter optionLabel="name" placeholder="Select an Employer" class="w-full md:w-56" clearIcon="">
-                  <template #value="slotProps">
-                    <div v-if="slotProps.value" class="flex items-center">
-                      <div>{{ slotProps.value.name }}</div>
-                    </div>
-                    <span v-else>
-                      {{ slotProps.placeholder }}
-                    </span>
-                  </template>
-                  <template #option="slotProps">
-                    <div class="flex items-center">
-                      <div>{{ slotProps.option.name }}</div>
-                    </div>
-                  </template>
-                </Select>
+                <Select v-model="template.employerId" :options="employers" filter optionLabel="name" optionValue="id" placeholder="Select an Employer" class="w-full md:w-56" clearIcon=""/>
               </div>
               <div class="flex-col gap-4 w-full">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Subject</label>
@@ -264,9 +277,11 @@ onMounted(() => {
               </div>
             </div>
             <div class="flex flex-row gap-4 mt-4">
-              <label class="block text-sm font-semibold text-gray-700 mb-2 required">Content</label>
-              <v-ace-editor id="editor" v-model:value="template.content" :lang="editorLang" theme="chrome" style="height: 600px" />
-              <Message v-if="$form.content?.invalid" severity="error" size="small" variant="simple">{{ $form.content.error.message }}</Message>
+              <div class="flex-col gap-4 w-full">
+                <label class="block text-sm font-semibold text-gray-700 mb-2 required">Content</label>
+                <VAceEditor id="editor" v-model:value="template.content" :lang="editorLang" theme="chrome" style="height: 600px;" class="w-full" />
+                <Message v-if="$form.content?.invalid" severity="error" size="small" variant="simple">{{ $form.content.error.message }}</Message>
+              </div>
             </div>
             <div class="p-6 flex justify-between">
               <Button @click="closeCallback" severity="secondary" type="button" label="Close" />

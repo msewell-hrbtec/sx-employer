@@ -179,6 +179,12 @@ export default {
     async removeTeamMembers(teamMembers: any) {
         return post(`sxe/remove-team-members`, teamMembers)
     },
+    async archiveTemplate(id: string, archive: boolean) {
+        return post(`sxe/template-archive?id=${id}&archive=${archive}`, {})
+    },
+    async defaultTemplate(id: string, _default: boolean) {
+        return post(`sxe/template-default?id=${id}&_default=${_default}`, {})
+    },
     async jobTarget(id: string) {
         return post(`sxe/job-target?jobId=${id}`, {})
     },

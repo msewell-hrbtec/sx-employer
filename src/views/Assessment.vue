@@ -46,7 +46,7 @@ const assessmentsOnSort = (event: any) => {
 }
 
 const shareAssessment = (job: any) => {
-  shareUrl.value = `https://careerpilot.skillxchange.io/${hrbCore.getDomain().route}/assessments/${job.id}`
+  shareUrl.value = `https://careerpilot.skillxchange.io/assessments/${job.id}`
   setTimeout(function () {
     const e = document.getElementById("shareUrl") as HTMLInputElement;
     e.select();
@@ -122,7 +122,7 @@ const viewCandidates = (aid: string) => {
   candidateDialogRef.value.showByAssessmentId(aid)
 }
 const selectedJobChanged = () => {
-  shareUrl.value = `https://careerpilot.skillxchange.io/${hrbCore.getDomain().route}/assessments/${selectedJob.value}&jobid=${selectedJob.value}`
+  shareUrl.value = `https://careerpilot.skillxchange.io/assessments/${selectedJob.value}&jobid=${selectedJob.value}`
   setTimeout(function () {
     const e = document.getElementById("shareUrl") as HTMLInputElement;
     e.select();
