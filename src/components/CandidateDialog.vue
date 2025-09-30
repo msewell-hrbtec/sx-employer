@@ -162,8 +162,8 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
       <div class="bg-white rounded-xl border border-gray-200 p-8 m-2">
         <div class="flex items-center justify-between mb-6">
           <div>
-            <h2 class="text-2xl font-bold text-gray-900">Candidates</h2>
-            <p class="text-gray-600 mt-1">Start by defining the basic details of your job posting</p>
+            <h2 class="text-2xl font-bold text-gray-900">Applicants</h2>
+            <p class="text-gray-600 mt-1">View Job Applicants</p>
           </div>
         </div>
         <DataTable
@@ -182,16 +182,16 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
             showCurrentPageReport
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
         >
-          <template #empty> No candidates found. </template>
-          <template #loading> Loading candidate data. Please wait. </template>
+          <template #empty> No applicants found. </template>
+          <template #loading> Loading applicant data. Please wait. </template>
           <Column :sortable="true" field="firstName" header="Name">
             <template #body="{ data }">
               <span class="text-sm font-semibold">{{ data?.firstName + ' ' + data?.lastName }}</span>
             </template>
           </Column>
-          <Column :sortable="true" field="status" header="Candidate Status">
+          <Column :sortable="true" field="status" header="Applicant State">
             <template #body="{ data }">
-              <Select v-model="data.status" :options="Object.values(CandidateStatus)" optionLabel="label" optionValue="label" placeholder="All Statuses" class="w-full" @change="updateCandidateStatus(data)">
+              <Select v-model="data.status" :options="Object.values(CandidateStatus)" optionLabel="label" optionValue="label" placeholder="All States" class="w-full" @change="updateCandidateStatus(data)">
                 <template #value="data">
                   <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium" :class="utils.candidateStatusColor(data.value)">{{ data.value || data.placeholder}}</div>
                 </template>
@@ -227,8 +227,8 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
             <template #body="{ data }">
               <div class="flex flex-row">
                 <a v-if="data.resume" @click="viewResume(data.resume)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Resume"><i class="pi pi-file-check"></i></a>
-                <a @click="viewCandidate(data)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-user-plus"></i></a>
-                <a v-if="data.result" @click="viewResults(data.result.id)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Candidate"><i class="pi pi-receipt"></i></a>
+                <a @click="viewCandidate(data)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Applicant"><i class="pi pi-user-plus"></i></a>
+                <a v-if="data.result" @click="viewResults(data.result.id)" class="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="View Results"><i class="pi pi-receipt"></i></a>
               </div>
             </template>
           </Column>
@@ -348,7 +348,7 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
   <Drawer :visible="openCandidateDialog" @update:visible="(value) => openCandidateDialog = value" header="" position="right" class="!w-full md:!w-80 lg:!w-[40rem]">
     <template #container="{ closeCallback }">
       <div class="px-6 py-5 flex items-center justify-between">
-        <span class="font-medium">Candidate Information</span>
+        <span class="font-medium">Applicant Information</span>
         <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
       </div>
       <div class="overflow-auto">
@@ -356,35 +356,35 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
           <div class="flex flex-row gap-4">
             <div class="flex-col gap-4 w-full">
               <label class="block text-sm font-semibold text-gray-700 mb-2">First Name</label>
-              <InputText :readonly="true" :value="candidate.firstName" placeholder="First Name of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.firstName" placeholder="First Name of applicant" class="w-full"/>
             </div>
             <div class="flex-col gap-4 w-full">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Last Name</label>
-              <InputText :readonly="true" :value="candidate.lastName" placeholder="Last Name of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.lastName" placeholder="Last Name of applicant" class="w-full"/>
             </div>
           </div>
           <div class="flex flex-row gap-4 mt-4">
             <div class="flex-col gap-4 w-full">
               <label class="block text-sm font-semibold text-gray-700 mb-2">City</label>
-              <InputText :readonly="true" :value="candidate.city" placeholder="Address City of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.city" placeholder="Address City of applicant" class="w-full"/>
             </div>
             <div class="flex-col gap-4 w-xs">
               <label class="block text-sm font-semibold text-gray-700 mb-2">State</label>
-              <InputText :readonly="true" :value="candidate.state" placeholder="Address State of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.state" placeholder="Address State of applicant" class="w-full"/>
             </div>
             <div class="flex-col gap-4 w-xs">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Postal</label>
-              <InputText :readonly="true" :value="candidate.postal" placeholder="Address Postal of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.postal" placeholder="Address Postal of applicant" class="w-full"/>
             </div>
           </div>
           <div class="flex flex-row gap-4 mt-4">
             <div class="flex-col gap-4 w-full">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-              <InputText :readonly="true" :value="candidate.email" placeholder="Email of candidate" class="w-full"/>
+              <InputText :readonly="true" :value="candidate.email" placeholder="Email of applicant" class="w-full"/>
             </div>
             <div class="flex-col gap-4 w-full">
               <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
-              <PhoneNumberInput :readonly="true" v-model="candidate.phone" placeholder="Phone of candidate" class="w-full" name="phone"/>
+              <PhoneNumberInput :readonly="true" v-model="candidate.phone" placeholder="Phone of applicant" class="w-full" name="phone"/>
             </div>
           </div>
           <div class="space-y-6 mt-4" v-if="additionalQuestions.length > 0">
@@ -400,7 +400,7 @@ defineExpose({ showByJobId, showByAssessmentId, showNewCandidate, hide })
           </div>
           <div class="space-y-6 mt-4">
             <div class="text-md font-bold p-4 bg-gray-100 rounded-md">Email Communication</div>
-            <p class="text-sm text-gray-500 mt-1">If you would like to send an email to this candidate, fill out the following information.</p>
+            <p class="text-sm text-gray-500 mt-1">If you would like to send an email to this applicant, fill out the following information.</p>
             <div>
               <label class="block text-sm font-semibold text-gray-700 mb-2">
                 Subject

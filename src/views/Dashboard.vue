@@ -163,7 +163,7 @@ const refreshJobs = () => {
 onMounted(() => {
   loadJobs()
   StatusArray.value = Object.values(PublishStatus)
-  StatusArray.value.unshift({label: "All Statuses", value: "", color: ""})
+  StatusArray.value.unshift({label: "Stage", value: "", color: ""})
   hrbCore.getEmployerProfile().then((response: any) => {
     if (response.success) {
       employer.value = response.payload
@@ -174,7 +174,7 @@ onMounted(() => {
 <template>
   <div class="flex flex-row gap-2 rounded-lg p-4 bg-primary shadow-md mb-3">
     <div class="flex flex-col grow">
-      <div class="text-2xl font-bold text-white">Welcome back, {{ hrbCore.getUser().firstName }}!</div>
+      <div class="text-2xl font-bold text-white">Welcome, {{ hrbCore.getUser().firstName }}!</div>
       <div class="text-white py-4">Here's what's happening with your recruitment today.</div>
       <div class="flex flex-row gap-4">
         <div class="flex flex-col rounded-lg py-2 px-4" style="background-color: #85a8f9">
@@ -189,10 +189,10 @@ onMounted(() => {
     </div>
   </div>
   <div class="text-xl font-bold py-4">Quick Actions</div>
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all group" @click="$router.push('/job')">
       <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center  group-hover:bg-blue-200 transition-colors">
-        <i class="text-blue-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-plus" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"></path></svg></i>
+        <i class="text-blue-600 text-xl fas fa-plus"></i>
       </div>
       <div class="flex flex-col grow">
         <h4 class="font-semibold text-gray-900 mb-1">Create New Job</h4>
@@ -201,7 +201,7 @@ onMounted(() => {
     </button>
     <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-md transition-all group" @click="$router.push('/job-candidates')">
       <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-        <i class="text-green-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-magnifying-glass" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="magnifying-glass" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg=""><path fill="currentColor" d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path></svg></i>
+        <i class="text-green-600 text-xl fas fa-magnifying-glass"></i>
       </div>
       <div class="flex flex-col grow">
         <h4 class="font-semibold text-gray-900 mb-1">Manage Talent</h4>
@@ -210,11 +210,20 @@ onMounted(() => {
     </button>
     <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all group" @click="$router.push('/assessments')">
       <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-        <i class="text-purple-600 text-xl" data-fa-i2svg=""><svg class="svg-inline--fa fa-clipboard-check" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="clipboard-check" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" data-fa-i2svg=""><path fill="currentColor" d="M192 0c-41.8 0-77.4 26.7-90.5 64H64C28.7 64 0 92.7 0 128V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H282.5C269.4 26.7 233.8 0 192 0zm0 64a32 32 0 1 1 0 64 32 32 0 1 1 0-64zM305 273L177 401c-9.4 9.4-24.6 9.4-33.9 0L79 337c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L271 239c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg></i>
+        <i class="text-purple-600 text-xl fas fa-clipboard-check"></i>
       </div>
       <div class="flex flex-col grow">
         <h4 class="font-semibold text-gray-900 mb-1">View Assessments</h4>
         <p class="text-sm text-gray-500">Review candidate assessments</p>
+      </div>
+    </button>
+    <button class="justify-between flex bg-white p-6 rounded-xl border border-gray-200 hover:border-yellow-300 hover:shadow-md transition-all group" @click="$router.push('/employers')" v-if="hrbCore.isEnterpriseAdmin()">
+      <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
+        <i class="text-yellow-600 text-xl fas fa-user-check"></i>
+      </div>
+      <div class="flex flex-col grow">
+        <h4 class="font-semibold text-gray-900 mb-1">View Employers</h4>
+        <p class="text-sm text-gray-500">Review Employers</p>
       </div>
     </button>
   </div>
@@ -261,7 +270,7 @@ onMounted(() => {
       <template #body="{ data }">
         <div class="flex flex-col gap-2">
           <span class="font-semibold">{{ data?.title }}</span>
-          <span class="text-sm">{{ calculatePostedAt(data?.publishDate) }}</span>
+          <span class="text-sm">{{ data?.status === "Published" ? calculatePostedAt(data?.publishDate) : "" }}</span>
         </div>
       </template>
     </Column>
@@ -353,8 +362,8 @@ onMounted(() => {
         <div class="bg-white rounded-xl border border-gray-200 m-1 p-6">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">Employer Information</h2>
-              <p class="text-gray-600 mt-1">Define the basic employer details</p>
+              <h2 class="text-2xl font-bold text-gray-900">Company Information</h2>
+              <p class="text-gray-600 mt-1">Define the basic company details</p>
             </div>
             <Button type="button" @click="closeCallback" icon="pi pi-times" text severity="secondary" />
           </div>
@@ -364,74 +373,74 @@ onMounted(() => {
                 <div class="flex flex-row gap-2 w-full">
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Name <span class="text-red-500">*</span>
+                      Company Name <span class="text-red-500">*</span>
                     </label>
                     <InputText name="name" v-model="employer.name" placeholder="Name of employer" class="w-full"/>
                     <Message v-if="$form.name?.invalid" severity="error" size="small" variant="simple">{{ $form.name.error.message }}</Message>
-                    <p class="text-xs text-gray-500 mt-1">This will be the employer name candidates see</p>
+                    <p class="text-xs text-gray-500 mt-1">This will be the company name candidates see</p>
                   </div>
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Url <span class="text-red-500">*</span>
+                      Company Url <span class="text-red-500">*</span>
                     </label>
                     <InputText name="url" type="url" v-model="employer.url" placeholder="Url of employer" class="w-full"/>
                     <Message v-if="$form.url?.invalid" severity="error" size="small" variant="simple">{{ $form.url.error.message }}</Message>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's website.</p>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's website.</p>
                   </div>
                 </div>
                 <div class="flex flex-row gap-2 w-full">
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer City <span class="text-red-500">*</span>
+                      Company City <span class="text-red-500">*</span>
                     </label>
-                    <InputText name="city" v-model="employer.city" placeholder="City of employer" class="w-full"/>
+                    <InputText name="city" v-model="employer.city" placeholder="City of company" class="w-full"/>
                   </div>
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer State <span class="text-red-500">*</span>
+                      Company State <span class="text-red-500">*</span>
                     </label>
                     <Select name="state" v-model="employer.state" :options="Object.values(States)" placeholder="Select a state" class="w-full" />
                     <Message v-if="$form.state?.invalid" severity="error" size="small" variant="simple">{{ $form.state.error.message }}</Message>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's state.</p>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's state.</p>
                   </div>
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Postal <span class="text-red-500">*</span>
+                      Company Postal <span class="text-red-500">*</span>
                     </label>
                     <InputText name="postalCode" v-model="employer.postalCode" placeholder="Postal code of employer" class="w-full"/>
                     <Message v-if="$form.postalCode?.invalid" severity="error" size="small" variant="simple">{{ $form.postalCode.error.message }}</Message>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's postal code.</p>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's postal code.</p>
                   </div>
                 </div>
                 <div class="flex flex-row gap-2 w-full">
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Image
+                      Company Image
                     </label>
                     <ResourceUpload id="thumbnail" name="thumbnail" accept="image/*" button-label="Upload" v-model="employer.thumbnail" />
                   </div>
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Description <span class="text-red-500">*</span>
+                      Company Description <span class="text-red-500">*</span>
                     </label>
-                    <Textarea rows="5" name="desc" v-model="employer.desc" placeholder="Description of employer" class="w-full"/>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's description.</p>
+                    <Textarea rows="5" name="desc" v-model="employer.desc" placeholder="Description of company" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's description.</p>
                   </div>
                 </div>
                 <div class="flex flex-row gap-2 w-full">
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Opportunity Description
+                      Why work for us?
                     </label>
-                    <Textarea rows="5" name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of employer" class="w-full"/>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's opportunity description.</p>
+                    <Textarea rows="5" name="employerOpportunity" v-model="employer.opportunity" placeholder="Opportunity description of company" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's opportunity description.</p>
                   </div>
                   <div class="flex flex-col gap-2 w-full">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                      Employer Cultural Description
+                      Company Cultural Description
                     </label>
-                    <Textarea rows="5" name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of employer" class="w-full"/>
-                    <p class="text-xs text-gray-500 mt-1">This is the employer's cultural description.</p>
+                    <Textarea rows="5" name="employerCultural" v-model="employer.cultural" placeholder="Cultural description of company" class="w-full"/>
+                    <p class="text-xs text-gray-500 mt-1">This is the company's cultural description.</p>
                   </div>
                 </div>
               </div>

@@ -106,7 +106,7 @@ const getUrlQueryParams = async () => {
             <img :src="hrbCore.getDomain()?.image" :alt="hrbCore.getDomain()?.name" />
           </div>
           <div class="flex flex-col items-center gap-2 w-full">
-            <div class="text-surface-900 dark:text-surface-0 text-2xl font-semibold leading-tight text-center w-full">Welcome Back</div>
+            <div class="text-surface-900 dark:text-surface-0 text-2xl font-semibold leading-tight text-center w-full">{{hrbCore.getUser().email ? "Welcome Back" : "Activate Your Account" }}</div>
           </div>
         </div>
         <div class="flex flex-col gap-6 w-full">

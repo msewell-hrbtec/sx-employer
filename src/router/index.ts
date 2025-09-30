@@ -8,6 +8,7 @@ import InviteEmployer from "@/views/InviteEmployer.vue"
 import Candidates from "@/views/Candidates.vue"
 import Assessment from "@/views/Assessment.vue"
 import Job from "@/views/Job.vue"
+import Employers from "@/views/Employers.vue";
 
 const routes = [
     {
@@ -43,6 +44,9 @@ const routes = [
             },{
                 path: 'assessments',
                 component: Assessment
+            },{
+                path: 'employers',
+                component: Employers,
             }
         ]
     },

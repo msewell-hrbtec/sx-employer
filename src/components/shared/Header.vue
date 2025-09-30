@@ -228,6 +228,18 @@ onMounted(() => {
           </div>
         </div>
       </RouterLink>
+      <RouterLink to="/employers" v-if="hrbCore.isEnterpriseAdmin()">
+        <div class="flex flex-row items-center gap-2">
+          <div class="flex flex-col">
+            <Avatar class="pi pi-pen-to-square text-yellow-600! bg-yellow-100!" shape="circle" />
+          </div>
+          <div class="flex flex-col">
+            <div class="flex flex-row text-sm">
+              View Employers
+            </div>
+          </div>
+        </div>
+      </RouterLink>
     </div>
 
     <div class="flex items-center md:flex-row flex-col gap-4">

@@ -16,17 +16,17 @@ export const ResourceTypes = {
     OTHER: "Other",
 }
 export const CandidateStatus = {
-    APPLIED: {label: "Applied", color: "bg-gray-100 text-gray-800"},
     NEW: {label: "New", color: "bg-green-100 text-green-800"},
+    APPLIED: {label: "Applied", color: "bg-gray-100 text-gray-800"},
     SCREENED: {label: "Screened", color: "bg-yellow-100 text-yellow-800"},
     INTERVIEWED: {label: "Interviewed", color: "bg-blue-100 text-blue-800"},
     HIRED: {label: "Hired", color: "bg-green-100 text-green-800"},
     REJECTED: {label: "Rejected", color: "bg-red-100 text-red-800"},
 }
 export const PublishStatus = {
-    PUBLISHED: {label: "Published", color: "bg-green-100 text-green-800"},
-    REVIEW: {label: "Review", color: "bg-yellow-100 text-yellow-800"},
     INCOMPLETE: {label: "Incomplete", color: "bg-red-100 text-red-800"},
+    REVIEW: {label: "Review", color: "bg-yellow-100 text-yellow-800"},
+    PUBLISHED: {label: "Published", color: "bg-green-100 text-green-800"},
     ARCHIVED: {label: "Archived", color: "bg-gray-100 text-gray-800"},
 }
 export const EmploymentType = {

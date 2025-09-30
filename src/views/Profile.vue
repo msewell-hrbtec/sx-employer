@@ -288,14 +288,8 @@ const confirmResourceDelete = (event: any) => {
                             </div>
                           </div>
                           <div class="flex flex-col md:flex-row gap-2">
-                            <div class="flex flex-col gap-2 w-full">
-                              <label for="reference">Reference</label>
-                              <InputText id="reference" type="text" v-model="user.ref" name="reference"/>
-                            </div>
-                          </div>
-                          <div class="flex flex-col md:flex-row gap-2">
                             <div class="flex flex-col gap-2 w-1/2">
-                              <label for="image">Profile Image</label>
+                              <label for="image">Profile Image (Optional, must be less than 1M in size)</label>
                               <ResourceUpload id="image" name="image" accept="image/*" @select="onImageSelectedFiles" button-label="Upload" v-model="user.image" />
                             </div>
                           </div>

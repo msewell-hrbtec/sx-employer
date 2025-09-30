@@ -298,9 +298,9 @@ onMounted(() => {
   </Drawer>
   <CandidateDialog ref="candidateDialogRef" />
   <Dialog v-model:visible="openShareDialog" modal header="Share Url" :style="{ width: '40rem' }">
-    <span class="text-surface-500 dark:text-surface-400 block mb-8">This is the assessment share url.   If you would like to also associate a job, select it now.   The url has been copied to your clipboard.</span>
+    <span class="text-surface-500 dark:text-surface-400 block mb-8">This is the job share link.   If you would like to also associate a job, select it now.   The url has been copied to your clipboard.</span>
     <div class="flex items-center gap-4 mb-4">
-      <label for="shareUrl" class="required text-nowrap">Share Url</label>
+      <label for="shareUrl" class="required text-nowrap">Share Job Link</label>
       <InputText id="shareUrl" class="flex-auto w-full" autocomplete="off" :value="shareUrl" readonly/>
     </div>
     <div class="flex items-center gap-4 mb-4">

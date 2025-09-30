@@ -12,6 +12,7 @@ const state = reactive({
         firstName: "",
         lastName: "",
         image: "",
+        roles: [],
     },
     domain: {
         id: "",
@@ -110,6 +111,15 @@ export default {
             head.appendChild(newlink)
         }
     },
+    isEnterpriseAdmin() {
+        let retVal = false
+        this.getUser().roles.forEach((role: string) => {
+          if (role === "Enterprise Admin" || role === "Super Admin") {
+            retVal = true
+          }
+        })
+        return retVal
+    },
     employerStats() {
         return empState;
     },
@@ -136,6 +146,7 @@ export default {
         state.user.firstName = user.firstName || ""
         state.user.lastName = user.lastName || ""
         state.user.image = user.image || ""
+        state.user.roles = user.roles
     },
     setEmployer(employer: any) {
         if (!employer) return;
@@ -247,6 +258,9 @@ export default {
     },
     async getEmployerById(eid: string) {
         return get(`public/employer-by-id?eid=${encodeURIComponent(eid)}`)
+    },
+    async getEmployersByDomainIdWithPaging(pagingInfo: PagingInfo) {
+        return post(`sxe/employers-by-domain-id`, pagingInfo)
     },
     async getJobCategories() {
         return get(`sxe/job-categories`)

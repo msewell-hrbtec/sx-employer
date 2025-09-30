@@ -38,6 +38,8 @@ const skills: any = ref([])
 const industries: any = ref([])
 const categories: any = ref([])
 const showSalaryRange = ref(false)
+const salaryLowerPlaceholder = ref("")
+const salaryUpperPlaceholder = ref("")
 const medicalInsurance = ref(false)
 const dentalInsurance = ref(false)
 const visionInsurance = ref(false)
@@ -238,6 +240,8 @@ const handleSubmit = (evt: any) => {
     job.value.responsibilities = responsibilities.value.join("|")
     job.value.requiredSkills = skills.value.join("|")
     job.value.qualifications = qualifications.value.join("|")
+    // clean editor.
+    job.value.description = job.value.description.replace(/nbsp;/g, " ")
     hrbCore.generateAI(job.value).then((response: any) => {
       loadingAI.value = false
       if (response.success) {
@@ -323,6 +327,16 @@ const loadJob = (jobId: string) => {
       }
     }
   })
+}
+const toggleSalaryRange = () => {
+  if (showSalaryRange) {
+    if (job.value?.salaryUpper!! > 0.0) {
+      salaryLowerPlaceholder.value = utils.formatCurrency((job.value.salaryUpper!! - 10000).toString())
+    } else {
+      salaryLowerPlaceholder.value = "$50,000"
+      salaryUpperPlaceholder.value = "$70,000"
+    }
+  }
 }
 onMounted(() => {
   hrbCore.getJobIndustries().then((response: any) => {
@@ -556,7 +570,7 @@ const emit = defineEmits(["reload"]);
                 <p class="text-sm text-blue-700">Increases application quality and quantity</p>
               </div>
               <label class="relative cursor-pointer">
-                <ToggleSwitch v-model="showSalaryRange" />
+                <ToggleSwitch v-model="showSalaryRange" @change="toggleSalaryRange" />
               </label>
             </div>
 
@@ -564,11 +578,11 @@ const emit = defineEmits(["reload"]);
             <div class="grid grid-cols-2 gap-4">
               <div v-if="showSalaryRange">
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Salary</label>
-                <InputNumber v-model="job.salaryLower" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$75,000" />
+                <InputNumber v-model="job.salaryLower" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid :placeholder="salaryLowerPlaceholder" />
               </div>
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">{{showSalaryRange ? 'Maximum Salary' : 'Salary'}}</label>
-                <InputNumber v-model="job.salaryUpper" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid placeholder="$95,000" />
+                <InputNumber v-model="job.salaryUpper" inputId="currency-us" mode="currency" currency="USD" locale="en-US" fluid :placeholder="salaryUpperPlaceholder" />
               </div>
             </div>
 

@@ -7,14 +7,13 @@ import Message from "primevue/message"
 import InputText from "primevue/inputtext"
 import PhoneNumberInput from "@/components/PhoneNumberInput.vue"
 import Select from "primevue/select"
-import Button from "primevue/button"
 import router from "@/router"
 import ResourceUpload from "@/components/ResourceUpload.vue"
 import Footer from "@/components/shared/Footer.vue"
 
-const plans = ref([
-  "15 Day Trial", "Basic Plan", "Pro Plan", "Enterprise Plan"
-])
+// const plans = ref([
+//   "15 Day Trial", "Basic Plan", "Pro Plan", "Enterprise Plan"
+// ])
 const sizes = ref([
     "1 to 10 Employees",
     "11 to 100 Employees",
@@ -91,11 +90,10 @@ const handleSubmit = (event: any) => {
       <div class="flex flex-col items-center gap-4">
         <img :src="hrbCore.getDomain()?.image" :alt="hrbCore.getDomain()?.name" />
       </div>
-      <div class="flex flex-col items-center gap-4 mb-3">
-        <h3 class="text-3xl font-bold">Create Your CareerPilot@Work Account</h3>
+      <div class="flex flex-col items-center gap-4 mb-6">
+        <h3 class="text-3xl font-bold">Create My Account</h3>
       </div>
       <Form v-slot="$form" :resolver="resolver" @submit="handleSubmit">
-        <div class="text-2xl mb-2">Create My Account</div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="flex flex-col gap-2">
             <InputText id="first-name" type="text" v-model="employer.firstName" name="firstName" placeholder="First Name"/>
@@ -118,7 +116,7 @@ const handleSubmit = (event: any) => {
             <Message v-if="$form.email?.invalid" severity="error" size="small" variant="simple">{{ $form.email.error.message }}</Message>
           </div>
           <div class="flex flex-col gap-2">
-            <InputText id="employer-url" type="url" v-model="employer.url" name="url" placeholder="Company Url"/>
+            <InputText id="employer-url" type="url" v-model="employer.url" name="url" placeholder="https://www.yourcompany.com"/>
             <Message v-if="$form.url?.invalid" severity="error" size="small" variant="simple">{{ $form.url.error.message }}</Message>
           </div>
           <div class="flex flex-col gap-2">
@@ -130,17 +128,17 @@ const handleSubmit = (event: any) => {
             <Message v-if="$form.size?.invalid" severity="error" size="small" variant="simple">{{ $form.size.error.message }}</Message>
           </div>
           <div class="flex flex-col gap-2">
-            <label for="image">Upload Your Employer Logo Here</label>
+            <label for="image">Upload Your Company Logo Here</label>
             <ResourceUpload v-model="employer.image" name="image" class="w-full" accept="" id="image" image-placeholder=""/>
           </div>
-          <div class="flex flex-col gap-2">
-            <Select v-model="employer.plan" name="plan" :options="plans" placeholder="Choose a Plan" class="w-full"/>
-            <Message v-if="$form.plan?.invalid" severity="error" size="small" variant="simple">{{ $form.plan.error.message }}</Message>
-            <Button :disabled="loading" type="submit" class="mt-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
-              <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
-              <span>Submit</span>
-            </Button>
-          </div>
+<!--          <div class="flex flex-col gap-2">-->
+<!--            <Select v-model="employer.plan" name="plan" :options="plans" placeholder="Choose a Plan" class="w-full"/>-->
+<!--            <Message v-if="$form.plan?.invalid" severity="error" size="small" variant="simple">{{ $form.plan.error.message }}</Message>-->
+<!--            <Button :disabled="loading" type="submit" class="mt-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">-->
+<!--              <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>-->
+<!--              <span>Submit</span>-->
+<!--            </Button>-->
+<!--          </div>-->
         </div>
       </Form>
       <Footer class="mt-10"/>
