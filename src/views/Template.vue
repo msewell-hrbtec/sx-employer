@@ -173,6 +173,7 @@ onMounted(() => {
         :loading="loading"
         :sort-order="1"
         showCurrentPageReport
+        paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
     >
       <template #header>
