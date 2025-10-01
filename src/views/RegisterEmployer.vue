@@ -131,14 +131,14 @@ const handleSubmit = (event: any) => {
             <label for="image">Upload Your Company Logo Here</label>
             <ResourceUpload v-model="employer.image" name="image" class="w-full" accept="" id="image" image-placeholder=""/>
           </div>
-<!--          <div class="flex flex-col gap-2">-->
+          <div class="flex flex-col gap-2">
 <!--            <Select v-model="employer.plan" name="plan" :options="plans" placeholder="Choose a Plan" class="w-full"/>-->
 <!--            <Message v-if="$form.plan?.invalid" severity="error" size="small" variant="simple">{{ $form.plan.error.message }}</Message>-->
-<!--            <Button :disabled="loading" type="submit" class="mt-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">-->
-<!--              <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>-->
-<!--              <span>Submit</span>-->
-<!--            </Button>-->
-<!--          </div>-->
+            <Button :disabled="loading" type="submit" class="mt-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2">
+              <i class="fas" :class="loading ? 'fa-spinner fa-spin' : 'fa-save'"></i>
+              <span>Submit</span>
+            </Button>
+          </div>
         </div>
       </Form>
       <Footer class="mt-10"/>
