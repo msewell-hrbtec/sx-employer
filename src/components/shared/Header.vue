@@ -151,6 +151,7 @@ const changeEmployer = () => {
         if (!response.success) {
           hrbCore.putMessage(response.message, true)
         } else {
+          hrbCore.saveState(response.payload)
           window.location.reload()
         }
       })
@@ -235,7 +236,7 @@ onMounted(() => {
           </div>
           <div class="flex flex-col">
             <div class="flex flex-row text-sm">
-              View Employers
+              View Companies
             </div>
           </div>
         </div>

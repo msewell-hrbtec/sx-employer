@@ -51,8 +51,8 @@ const loadJobs = (event?: any) => {
     jobPagingInfo.value.page = event.page + 1
   }
   jobPagingInfo.value.order = sortField + " " + sortOrder;
-  hrbCore.getJobsByEmployerIdAndStateAndStatusWithPaging(searchState.value, selectedStatus.value ? selectedStatus.value.label: "",jobPagingInfo.value).then((response) => {
-    loadingJobs.value = false;
+  hrbCore.getJobsByEmployerIdAndStateAndStatusWithPaging(searchState.value, selectedStatus.value ? selectedStatus.value.label: "", jobPagingInfo.value).then((response) => {
+    loadingJobs.value = false
     if (response.success) {
       jobs.value = response.payload.data
       totalJobRecords.value = response.payload.rowCount

@@ -67,7 +67,6 @@ const employersOnFilter = () => {
   loadEmployers()
 }
 onMounted(() => {
-  debugger;
   loadEmployers()
 })
 const registerNewEmployer = () => {
@@ -121,8 +120,8 @@ const shareEmployer = (emp: any) => {
         :rowHover="true"
         :loading="loadingEmployers"
         :sort-order="1"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
     >
       <template #header>
         <div class="flex justify-end">
@@ -135,16 +134,22 @@ const shareEmployer = (emp: any) => {
           </IconField>
         </div>
       </template>
+
       <template #empty> No employers found. </template>
       <template #loading> Loading employer data. Please wait. </template>
       <Column field="thumbnail" header="" style="text-align: center">
         <template #body="{ data }">
-          <Avatar :image="data?.image" class="!w-8 !h-8 !rounded-md !overflow-hidden" />
+          <Avatar :image="data?.thumbnail" class="!w-8 !h-8 !rounded-md !overflow-hidden" />
         </template>
       </Column>
       <Column :sortable="true" field="name" header="Name">
         <template #body="{ data }">
           <span class="text-sm font-semibold">{{ data.name }}</span>
+        </template>
+      </Column>
+      <Column field="status" header="Registered" style="text-align: center">
+        <template #body="{ data }">
+          <i class="pi" :class="data.url ? 'pi-check text-green-600' : 'pi-times text-red-600'"></i>
         </template>
       </Column>
       <Column :sortable ="true" field="city" header="City" style="text-align: center">
