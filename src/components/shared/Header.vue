@@ -191,7 +191,7 @@ onMounted(() => {
   <header class="md:max-h-16 py-4 pr-4 flex md:flex-row flex-col items-center justify-between gap-3">
     <div class="flex items-center md:flex-1 gap-2">
       <RouterLink to="/">
-        <img :src="hrbCore.getEmployer().image" class="mx-8" alt="Logo" style="width: 150px"/>
+        <img :src="hrbCore.getEmployer().thumbnail" class="mx-8" alt="Logo" style="width: 150px"/>
       </RouterLink>
       <RouterLink to="/">
         <div class="flex flex-row items-center gap-2">

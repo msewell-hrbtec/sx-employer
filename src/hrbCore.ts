@@ -28,7 +28,7 @@ const state = reactive({
     employer: {
         id: "",
         name: "",
-        image: "",
+        thumbnail: "",
         jobTargetEnabled: false,
     },
 })
@@ -113,11 +113,13 @@ export default {
     },
     isEnterpriseAdmin() {
         let retVal = false
-        this.getUser().roles.forEach((role: string) => {
-          if (role === "Enterprise Admin" || role === "Super Admin") {
-            retVal = true
-          }
-        })
+        if (state.user.roles) {
+            state.user.roles.forEach((role: string) => {
+                if (role === "Enterprise Admin" || role === "Super Admin") {
+                    retVal = true
+                }
+            })
+        }
         return retVal
     },
     employerStats() {
@@ -152,7 +154,7 @@ export default {
         if (!employer) return;
         state.employer.id = employer.id || ""
         state.employer.name = employer.name || ""
-        state.employer.image = employer.thumbnail || employer.image || ""
+        state.employer.thumbnail = employer.thumbnail || employer.thumbnail || ""
         state.employer.jobTargetEnabled = employer.jobTargetEnabled || false
     },
     getUser() {
@@ -223,7 +225,7 @@ export default {
     },
     async registerEmployer(employer: any) {
         const formData = new FormData()
-        formData.append("image", employer.image)
+        formData.append("thumbnail", employer.thumbnail)
         formData.append("payload", JSON.stringify(employer))
         return post(`public/register-employer`, formData, {
             headers: { "Content-Type": "multipart/form-data" },

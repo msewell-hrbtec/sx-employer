@@ -129,7 +129,7 @@ const handleSubmit = (event: any) => {
           </div>
           <div class="flex flex-col gap-2">
             <label for="image">Upload Your Company Logo Here</label>
-            <ResourceUpload v-model="employer.image" name="image" class="w-full" accept="" id="image" image-placeholder=""/>
+            <ResourceUpload v-model="employer.thumbnail" name="image" class="w-full" accept="" id="image" image-placeholder=""/>
           </div>
           <div class="flex flex-col gap-2">
 <!--            <Select v-model="employer.plan" name="plan" :options="plans" placeholder="Choose a Plan" class="w-full"/>-->
