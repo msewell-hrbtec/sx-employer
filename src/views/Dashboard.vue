@@ -53,10 +53,8 @@ const loadJobs = (event?: any) => {
   jobPagingInfo.value.order = sortField + " " + sortOrder;
   hrbCore.getJobsByEmployerIdAndStateAndStatusWithPaging(searchState.value, selectedStatus.value ? selectedStatus.value.label: "",jobPagingInfo.value).then((response) => {
     loadingJobs.value = false;
-    if (response.success) {
-      jobs.value = response.payload.data
-      totalJobRecords.value = response.payload.rowCount
-    }
+    jobs.value = response.data
+    totalJobRecords.value = response.rowCount
   })
 }
 const jobsOnPage = (event: any) => {
@@ -229,6 +227,7 @@ onMounted(() => {
     @page="jobsOnPage($event)"
     :totalRecords="totalJobRecords"
     showCurrentPageReport
+    paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
   >
     <template #header>

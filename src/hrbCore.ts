@@ -259,6 +259,13 @@ export default {
         formData.append("payload", JSON.stringify(payload))
         return post("sxe/user-resources", formData, { headers: { "Content-Type": "multipart/form-data" } })
     },
+    async getUsersByEmployerIdAndArchivedAndRoleWithPaging(eid: string, archived: boolean, role: string, pagingInfo: PagingInfo) {
+        if (eid === "") {
+            return post(`admin/users/paging?archived=${archived}&role=${role}`, pagingInfo)
+        } else {
+            return post(`admin/users/paging?eid=${encodeURIComponent(eid)}&archived=${archived}&role=${role}`, pagingInfo)
+        }
+    },
 }
 
 async function get(url: string) {
